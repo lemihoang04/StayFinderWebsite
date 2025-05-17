@@ -24,7 +24,7 @@
             <nav class="main-nav">
                 <ul>
                     <li><a href="index.jsp" class="active">Trang chủ</a></li>
-                    <li><a href="#">Tìm phòng trọ</a></li>
+                    <li><a href="rooms">Tìm phòng trọ</a></li>
                     <li><a href="#">Nhà cho thuê</a></li>
                     <li><a href="#">Căn hộ</a></li>
                     <li><a href="#">Ở ghép</a></li>

@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.UUID;
 
 import model.bo.roomBO;
@@ -306,30 +307,97 @@ public class roomController extends HttpServlet {
 		ArrayList<room> roomList = roomBO.getRoomList();
 		request.setAttribute("roomList", roomList);
 		request.getRequestDispatcher("my-rooms.jsp").forward(request, response);
-	}
-	
-	private void searchRooms(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// Get search parameters
-		String searchType = request.getParameter("searchType");
-		String searchText = request.getParameter("searchText");
+	}	
+		private void searchRooms(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// Get search parameters for advanced search
+		String city = request.getParameter("city");
+		String district = request.getParameter("district");
+		String minPrice = request.getParameter("minPrice");
+		String maxPrice = request.getParameter("maxPrice");
+		String minArea = request.getParameter("minArea");
+		String maxArea = request.getParameter("maxArea");
+		String searchtxt = request.getParameter("searchtxt");
+		String sortBy = request.getParameter("sortBy");
 		
 		ArrayList<room> searchResults;
-		String pageTitle;
+		String pageTitle = "Kết quả tìm kiếm";
 		
-		// If there's no search text, show all rooms
-		if (searchText == null || searchText.trim().isEmpty()) {
+		// Check if we have any search criteria
+		boolean hasAdvancedSearchCriteria = 
+			(city != null && !city.trim().isEmpty()) ||
+			(district != null && !district.trim().isEmpty()) ||
+			(minPrice != null && !minPrice.trim().isEmpty()) ||
+			(maxPrice != null && !maxPrice.trim().isEmpty()) ||
+			(minArea != null && !minArea.trim().isEmpty()) ||
+			(maxArea != null && !maxArea.trim().isEmpty()) ||
+			(searchtxt != null && !searchtxt.trim().isEmpty());
+			
+		if (hasAdvancedSearchCriteria) {
+			// Perform advanced search
+			searchResults = roomBO.getAdvancedSearchResults(city, district, minPrice, maxPrice, minArea, maxArea, searchtxt);
+			
+			// Build page title based on search criteria
+			StringBuilder titleBuilder = new StringBuilder("Kết quả tìm kiếm: ");
+			ArrayList<String> criteria = new ArrayList<>();
+			
+			if (searchtxt != null && !searchtxt.trim().isEmpty()) {
+				criteria.add("\"" + searchtxt + "\"");
+			}
+			
+			if (city != null && !city.trim().isEmpty()) {
+				criteria.add(city);
+			}
+			if (district != null && !district.trim().isEmpty()) {
+				criteria.add(district);
+			}
+			if ((minPrice != null && !minPrice.trim().isEmpty()) || (maxPrice != null && !maxPrice.trim().isEmpty())) {
+				criteria.add("Giá " + (minPrice != null && !minPrice.trim().isEmpty() ? "từ " + minPrice + " đ" : "") + 
+					(maxPrice != null && !maxPrice.trim().isEmpty() ? " đến " + maxPrice + " đ" : ""));
+			}
+			if ((minArea != null && !minArea.trim().isEmpty()) || (maxArea != null && !maxArea.trim().isEmpty())) {
+				criteria.add("Diện tích " + (minArea != null && !minArea.trim().isEmpty() ? "từ " + minArea + "m²" : "") + 
+					(maxArea != null && !maxArea.trim().isEmpty() ? " đến " + maxArea + "m²" : ""));
+			}
+			
+			if (!criteria.isEmpty()) {
+				titleBuilder.append(String.join(", ", criteria));
+				pageTitle = titleBuilder.toString();
+			}
+					} else {
+			// No search criteria, show all rooms
 			searchResults = roomBO.getRoomList();
 			pageTitle = "Tất cả phòng trọ";
-		} else {
-			// Perform search with the given parameters
-			searchResults = roomBO.getRoomListBySearch(searchType, searchText);
-			pageTitle = "Kết quả tìm kiếm: " + searchText;
+		}
+		
+		// Handle sorting
+		if (sortBy != null && !sortBy.isEmpty()) {
+			// Sort the search results based on sortBy parameter
+			switch (sortBy) {
+				case "price-low":
+					searchResults.sort(Comparator.comparing(room::getPrice));
+					break;
+				case "price-high":
+					searchResults.sort(Comparator.comparing(room::getPrice).reversed());
+					break;
+				case "area-low":
+					searchResults.sort(Comparator.comparing(room::getArea));
+					break;
+				case "area-high":
+					searchResults.sort(Comparator.comparing(room::getArea).reversed());
+					break;
+				// Default case: already sorted by newest
+			}
 		}
 		
 		// Set attributes for the JSP
 		request.setAttribute("roomList", searchResults);
-		request.setAttribute("searchType", searchType);
-		request.setAttribute("searchText", searchText);
+		request.setAttribute("city", city);
+		request.setAttribute("district", district);
+		request.setAttribute("minPrice", minPrice);
+		request.setAttribute("maxPrice", maxPrice);
+		request.setAttribute("minArea", minArea);		request.setAttribute("maxArea", maxArea);
+		request.setAttribute("searchtxt", searchtxt);
+		request.setAttribute("sortBy", sortBy);
 		request.setAttribute("pageTitle", pageTitle);
 		request.setAttribute("totalRooms", searchResults.size());
 		
