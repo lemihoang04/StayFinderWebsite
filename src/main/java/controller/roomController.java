@@ -1,0 +1,381 @@
+package controller;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.UUID;
+
+import model.bo.roomBO;
+import model.bean.room;
+
+/**
+ * Servlet implementation class roomController
+ */
+@WebServlet(name = "roomController", urlPatterns = {
+    "/rooms", 
+    "/room-detail", 
+    "/add-room", 
+    "/edit-room", 
+    "/delete-room",
+    "/my-rooms",
+    "/search-rooms"
+})
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024, // 1 MB
+    maxFileSize = 1024 * 1024 * 10,  // 10 MB
+    maxRequestSize = 1024 * 1024 * 50 // 50 MB
+)
+public class roomController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	private roomBO roomBO;
+	
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public roomController() {
+        super();
+        roomBO = new roomBO();
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String action = request.getServletPath();
+		
+		try {
+			switch (action) {
+				case "/rooms":
+					listRooms(request, response);
+					break;
+				case "/room-detail":
+					showRoomDetail(request, response);
+					break;
+				case "/add-room":
+					showAddRoomForm(request, response);
+					break;
+				case "/edit-room":
+					showEditRoomForm(request, response);
+					break;
+				case "/delete-room":
+					deleteRoom(request, response);
+					break;
+				case "/my-rooms":
+					showMyRooms(request, response);
+					break;
+				case "/search-rooms":
+					searchRooms(request, response);
+					break;
+				default:
+					listRooms(request, response);
+					break;
+			}
+		} catch (Exception e) {
+			throw new ServletException(e);
+		}
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("UTF-8");
+		String action = request.getServletPath();
+		
+		try {
+			switch (action) {
+				case "/add-room":
+					addRoom(request, response);
+					break;
+				case "/edit-room":
+					updateRoom(request, response);
+					break;
+				case "/search-rooms":
+					searchRooms(request, response);
+					break;
+				default:
+					listRooms(request, response);
+					break;
+			}
+		} catch (Exception e) {
+			throw new ServletException(e);
+		}
+	}
+	
+	private void listRooms(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// Get all rooms
+		ArrayList<room> roomList = roomBO.getRoomList();
+		request.setAttribute("roomList", roomList);
+		
+		// Set page title and other attributes
+		request.setAttribute("pageTitle", "Tất cả phòng trọ");
+		request.setAttribute("totalRooms", roomList.size());
+		
+		// Forward to search.jsp which will display all rooms
+		request.getRequestDispatcher("search.jsp").forward(request, response);
+	}
+	
+	private void showRoomDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String id = request.getParameter("id");
+		room room = roomBO.getRoomByID(id);
+		
+		if (room != null) {
+			request.setAttribute("room", room);
+			request.getRequestDispatcher("room-detail.jsp").forward(request, response);
+		} else {
+			response.sendRedirect("rooms");
+		}
+	}
+	
+	private void showAddRoomForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// Check if user is logged in
+		HttpSession session = request.getSession();
+		if (session.getAttribute("user") == null) {
+			response.sendRedirect("login.jsp");
+			return;
+		}
+		
+		request.getRequestDispatcher("addroom.jsp").forward(request, response);
+	}
+	
+	private void addRoom(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// Check if user is logged in
+		HttpSession session = request.getSession();
+		if (session.getAttribute("user") == null) {
+			response.sendRedirect("login.jsp");
+			return;
+		}
+		
+		// Get parameters from form
+		String title = request.getParameter("title");
+		String description = request.getParameter("description");
+		double price = Double.parseDouble(request.getParameter("price"));
+		double area = Double.parseDouble(request.getParameter("area"));
+		String address = request.getParameter("address");
+		String city = request.getParameter("city");
+		String district = request.getParameter("district");
+		String expiryDays = request.getParameter("expiry_date");
+		
+		// Process image uploads
+		String imagesPath = processImageUploads(request);
+		
+		// Calculate expiry date
+		String createdAt = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+		String expiryDate = LocalDate.now().plusDays(Integer.parseInt(expiryDays)).format(DateTimeFormatter.ISO_LOCAL_DATE);
+		
+		// Default values for other fields
+		String roomType = "standard";  // Default room type
+		String status = "pending";     // Default status
+		
+		// Save room to database
+		boolean success = roomBO.addRoom(title, description, roomType, price, area, address, city, district, 
+										imagesPath, createdAt, expiryDate, status);
+		
+		if (success) {
+			request.setAttribute("message", "Đăng tin thành công. Tin của bạn đang chờ duyệt.");
+			request.getRequestDispatcher("success.jsp").forward(request, response);
+		} else {
+			request.setAttribute("error", "Có lỗi xảy ra khi đăng tin. Vui lòng thử lại.");
+			request.getRequestDispatcher("addroom.jsp").forward(request, response);
+		}
+	}
+	
+	private void showEditRoomForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// Check if user is logged in
+		HttpSession session = request.getSession();
+		if (session.getAttribute("user") == null) {
+			response.sendRedirect("login.jsp");
+			return;
+		}
+		
+		String id = request.getParameter("id");
+		room room = roomBO.getRoomByID(id);
+		
+		if (room != null) {
+			request.setAttribute("room", room);
+			request.getRequestDispatcher("edit-room.jsp").forward(request, response);
+		} else {
+			response.sendRedirect("rooms");
+		}
+	}
+	
+	private void updateRoom(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// Check if user is logged in
+		HttpSession session = request.getSession();
+		if (session.getAttribute("user") == null) {
+			response.sendRedirect("login.jsp");
+			return;
+		}
+		
+		String id = request.getParameter("id");
+		String title = request.getParameter("title");
+		String description = request.getParameter("description");
+		double price = Double.parseDouble(request.getParameter("price"));
+		double area = Double.parseDouble(request.getParameter("area"));
+		String address = request.getParameter("address");
+		String city = request.getParameter("city");
+		String district = request.getParameter("district");
+		String expiryDays = request.getParameter("expiry_date");
+		
+		room existingRoom = roomBO.getRoomByID(id);
+		
+		if (existingRoom != null) {
+			// Check if new images are uploaded
+			String imagesPath = existingRoom.getImages();
+			
+			Collection<Part> parts = request.getParts();
+			boolean hasNewImages = false;
+			
+			for (Part part : parts) {
+				if (part.getName().equals("images") && part.getSize() > 0) {
+					hasNewImages = true;
+					break;
+				}
+			}
+			
+			if (hasNewImages) {
+				imagesPath = processImageUploads(request);
+			}
+			
+			// Calculate new expiry date if changed
+			String expiryDate = existingRoom.getExpiryDate();
+			if (expiryDays != null && !expiryDays.isEmpty()) {
+				expiryDate = LocalDate.now().plusDays(Integer.parseInt(expiryDays)).format(DateTimeFormatter.ISO_LOCAL_DATE);
+			}
+			
+			boolean success = roomBO.updateRoom(id, title, description, existingRoom.getRoomType(), 
+												price, area, address, city, district, imagesPath, 
+												existingRoom.getCreatedAt(), expiryDate, existingRoom.getStatus());
+			
+			if (success) {
+				request.setAttribute("message", "Cập nhật tin thành công!");
+				showRoomDetail(request, response);
+			} else {
+				request.setAttribute("error", "Có lỗi xảy ra khi cập nhật tin. Vui lòng thử lại.");
+				showEditRoomForm(request, response);
+			}
+		} else {
+			response.sendRedirect("rooms");
+		}
+	}
+	
+	private void deleteRoom(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// Check if user is logged in
+		HttpSession session = request.getSession();
+		if (session.getAttribute("user") == null) {
+			response.sendRedirect("login.jsp");
+			return;
+		}
+		
+		String id = request.getParameter("id");
+		boolean success = roomBO.deleteRoom(id);
+		
+		if (success) {
+			request.setAttribute("message", "Xóa tin thành công!");
+		} else {
+			request.setAttribute("error", "Có lỗi xảy ra khi xóa tin. Vui lòng thử lại.");
+		}
+		
+		showMyRooms(request, response);
+	}
+	
+	private void showMyRooms(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// Check if user is logged in
+		HttpSession session = request.getSession();
+		if (session.getAttribute("user") == null) {
+			response.sendRedirect("login.jsp");
+			return;
+		}
+		
+		// In a real application, you'd get the user ID from the session and filter rooms by user ID
+		// For now, we'll just show all rooms
+		ArrayList<room> roomList = roomBO.getRoomList();
+		request.setAttribute("roomList", roomList);
+		request.getRequestDispatcher("my-rooms.jsp").forward(request, response);
+	}
+	
+	private void searchRooms(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// Get search parameters
+		String searchType = request.getParameter("searchType");
+		String searchText = request.getParameter("searchText");
+		
+		ArrayList<room> searchResults;
+		String pageTitle;
+		
+		// If there's no search text, show all rooms
+		if (searchText == null || searchText.trim().isEmpty()) {
+			searchResults = roomBO.getRoomList();
+			pageTitle = "Tất cả phòng trọ";
+		} else {
+			// Perform search with the given parameters
+			searchResults = roomBO.getRoomListBySearch(searchType, searchText);
+			pageTitle = "Kết quả tìm kiếm: " + searchText;
+		}
+		
+		// Set attributes for the JSP
+		request.setAttribute("roomList", searchResults);
+		request.setAttribute("searchType", searchType);
+		request.setAttribute("searchText", searchText);
+		request.setAttribute("pageTitle", pageTitle);
+		request.setAttribute("totalRooms", searchResults.size());
+		
+		// Always forward to search.jsp for displaying search results
+		request.getRequestDispatcher("search.jsp").forward(request, response);
+	}
+
+	private String processImageUploads(HttpServletRequest request) throws ServletException, IOException {
+		// Define the upload directory
+		String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads";
+		File uploadDir = new File(uploadPath);
+		if (!uploadDir.exists()) {
+			uploadDir.mkdir();
+		}
+		
+		StringBuilder imagesPaths = new StringBuilder();
+		Collection<Part> parts = request.getParts();
+		
+		for (Part part : parts) {
+			if (part.getName().equals("images") && part.getSize() > 0) {
+				String fileName = UUID.randomUUID().toString() + getFileName(part);
+				String filePath = uploadPath + File.separator + fileName;
+				
+				// Write file to disk
+				part.write(filePath);
+				
+				// Save file path in comma-separated string
+				if (imagesPaths.length() > 0) {
+					imagesPaths.append(",");
+				}
+				imagesPaths.append("uploads/").append(fileName);
+			}
+		}
+		
+		return imagesPaths.toString();
+	}
+	
+	private String getFileName(Part part) {
+		String contentDisp = part.getHeader("content-disposition");
+		String[] items = contentDisp.split(";");
+		
+		for (String item : items) {
+			if (item.trim().startsWith("filename")) {
+				return item.substring(item.indexOf("=") + 2, item.length() - 1);
+			}
+		}
+		return "";
+	}
+}
