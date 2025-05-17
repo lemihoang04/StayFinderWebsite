@@ -201,7 +201,7 @@
                                                                 class="far fa-heart"></i></button>
                                                     </div>
                                                     <div class="sf-property-content">
-                                                        <h3><a href="room-detail?id=${room.id}">${room.title}</a></h3>
+                                                        <h3><a href="room-info?id=${room.id}">${room.title}</a></h3>
                                                         <p class="sf-location"><i class="fas fa-map-marker-alt"></i>
                                                             ${room.address},
                                                             ${room.district}, ${room.city}</p>

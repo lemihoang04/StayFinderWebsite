@@ -11,7 +11,6 @@ public class roomDAO {
 	Connection conn = null;
 	PreparedStatement ps = null;
 	ResultSet rs = null;
-
 	public ArrayList<room> getRoomList() {
 		ArrayList<room> list = new ArrayList<>();
 		String query = "SELECT * FROM rooms";
@@ -20,18 +19,17 @@ public class roomDAO {
 			ps = conn.prepareStatement(query);
 			rs = ps.executeQuery();
 			while (rs.next()) {
-				list.add(new room(rs.getString("title"), rs.getString("description"), rs.getString("room_type"),
+				list.add(new room(rs.getString("id"), rs.getString("title"), rs.getString("description"), rs.getString("room_type"),
 						rs.getDouble("price"), rs.getDouble("area"), rs.getString("address"), rs.getString("city"),
 						rs.getString("district"), rs.getString("images"), rs.getString("created_at"),
-						rs.getString("expiry_date"), rs.getString("status")));
+						rs.getString("expiry_date"), rs.getString("status"), rs.getString("user_id")));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return list;
 	}
-	
-	public ArrayList<room> getRoomListBySearch(String search_type, String searchtxt) {
+		public ArrayList<room> getRoomListBySearch(String search_type, String searchtxt) {
 		ArrayList<room> list = new ArrayList<>();
 		String query = "SELECT * FROM rooms WHERE 1 = 1";
 		if (search_type != null && searchtxt != null) {
@@ -45,16 +43,16 @@ public class roomDAO {
 			}
 			rs = ps.executeQuery();
 			while (rs.next()) {
-				list.add(new room(rs.getString("title"), rs.getString("description"), rs.getString("room_type"),
+				list.add(new room(rs.getString("id"), rs.getString("title"), rs.getString("description"), rs.getString("room_type"),
 						rs.getDouble("price"), rs.getDouble("area"), rs.getString("address"), rs.getString("city"),
 						rs.getString("district"), rs.getString("images"), rs.getString("created_at"),
-						rs.getString("expiry_date"), rs.getString("status")));
+						rs.getString("expiry_date"), rs.getString("status"), rs.getString("user_id")));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return list;
-	}	
+	}
 		public ArrayList<room> getAdvancedSearchResults(String city, String district, Double minPrice, Double maxPrice, Double minArea, Double maxArea, String searchtxt) {
 		ArrayList<room> list = new ArrayList<>();
 		StringBuilder queryBuilder = new StringBuilder("SELECT * FROM rooms WHERE 1=1");
@@ -119,15 +117,14 @@ public class roomDAO {
 				list.add(new room(rs.getString("id"), rs.getString("title"), rs.getString("description"), rs.getString("room_type"),
 						rs.getDouble("price"), rs.getDouble("area"), rs.getString("address"), rs.getString("city"),
 						rs.getString("district"), rs.getString("images"), rs.getString("created_at"),
-						rs.getString("expiry_date"), rs.getString("status")));
+						rs.getString("expiry_date"), rs.getString("status"), rs.getString("user_id")));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return list;
 	}
-	
-	public room getRoomByID(String id) {
+		public room getRoomByID(String id) {
 		room room = null;
 		String query = "SELECT * FROM rooms WHERE id = ?";
 		try {
@@ -136,20 +133,19 @@ public class roomDAO {
 			ps.setString(1, id);
 			rs = ps.executeQuery();
 			if (rs.next()) {
-				room = new room(rs.getString("title"), rs.getString("description"), rs.getString("room_type"),
+				room = new room(rs.getString("id"), rs.getString("title"), rs.getString("description"), rs.getString("room_type"),
 						rs.getDouble("price"), rs.getDouble("area"), rs.getString("address"), rs.getString("city"),
 						rs.getString("district"), rs.getString("images"), rs.getString("created_at"),
-						rs.getString("expiry_date"), rs.getString("status"));
+						rs.getString("expiry_date"), rs.getString("status"), rs.getString("user_id"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return room;
 	}
-
 	public boolean addRoom(String title, String description, String room_type, double price, double area, String address,
-			String city, String district, String images, String created_at, String expiry_date, String status) {
-		String query = "INSERT INTO rooms (title, description, room_type, price, area, address, city, district, images, created_at, expiry_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String city, String district, String images, String created_at, String expiry_date, String status, String user_id) {
+		String query = "INSERT INTO rooms (title, description, room_type, price, area, address, city, district, images, created_at, expiry_date, status, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		try {
 			conn = new DBconnect().getConnection();
 			ps = conn.prepareStatement(query);
@@ -165,17 +161,17 @@ public class roomDAO {
 			ps.setString(10, created_at);
 			ps.setString(11, expiry_date);
 			ps.setString(12, status);
+			ps.setString(13, user_id);
 			return ps.executeUpdate() > 0;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return false;
 	}
-	
-	public boolean updateRoom(String id, String title, String description, String room_type, double price, double area,
+		public boolean updateRoom(String id, String title, String description, String room_type, double price, double area,
 			String address, String city, String district, String images, String created_at, String expiry_date,
-			String status) {
-		String query = "UPDATE rooms SET title = ?, description = ?, room_type = ?, price = ?, area = ?, address = ?, city = ?, district = ?, images = ?, created_at = ?, expiry_date = ?, status = ? WHERE id = ?";
+			String status, String user_id) {
+		String query = "UPDATE rooms SET title = ?, description = ?, room_type = ?, price = ?, area = ?, address = ?, city = ?, district = ?, images = ?, created_at = ?, expiry_date = ?, status = ?, user_id = ? WHERE id = ?";
 		try {
 			conn = new DBconnect().getConnection();
 			ps = conn.prepareStatement(query);
@@ -191,7 +187,8 @@ public class roomDAO {
 			ps.setString(10, created_at);
 			ps.setString(11, expiry_date);
 			ps.setString(12, status);
-			ps.setString(13, id);
+			ps.setString(13, user_id);
+			ps.setString(14, id);
 			return ps.executeUpdate() > 0;
 		} catch (Exception e) {
 			e.printStackTrace();

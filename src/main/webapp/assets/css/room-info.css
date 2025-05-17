@@ -1,0 +1,436 @@
+/* Room Info Page Styles */
+
+/* Reset some basics */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container and Grid System */
+.ri-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.ri-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+}
+
+.ri-col-large {
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
+    padding: 0 15px;
+}
+
+.ri-col-small {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+    padding: 0 15px;
+}
+
+/* Utility Classes */
+.ri-img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+.ri-text-danger {
+    color: #dc3545;
+}
+
+.ri-badge {
+    display: inline-block;
+    padding: 0.25em 0.6em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    color: #fff;
+}
+
+.ri-badge-success {
+    background-color: #198754;
+}
+
+.ri-badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.ri-badge-secondary {
+    background-color: #6c757d;
+}
+
+/* Room Images Section */
+.ri-room-images {
+    margin-bottom: 20px;
+}
+
+.ri-main-image {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+}
+
+.ri-main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.ri-main-image:hover img {
+    transform: scale(1.03);
+}
+
+.ri-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px 0;
+}
+
+.ri-thumbnail-item {
+    width: 80px;
+    height: 60px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.ri-thumbnail-item:hover {
+    transform: scale(1.1);
+}
+
+.ri-thumbnail-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    padding: 2px;
+}
+
+.ri-no-image {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e9ecef;
+    border-radius: 8px;
+}
+
+/* Room Details */
+.ri-room-details {
+    margin-top: 25px;
+}
+
+.ri-room-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #343a40;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.ri-room-price-area {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    margin: 15px 0;
+}
+
+.ri-price-label,
+.ri-area-label {
+    color: #6c757d;
+    font-weight: 500;
+    margin-right: 5px;
+}
+
+.ri-price-value {
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.ri-area-value {
+    color: #198754;
+    font-weight: bold;
+}
+
+.ri-room-address {
+    font-size: 1rem;
+    color: #495057;
+    margin: 15px 0;
+}
+
+.ri-room-address i {
+    margin-right: 10px;
+}
+
+.ri-room-location {
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 1rem;
+    color: #495057;
+    margin: 15px 0;
+}
+
+.ri-room-district {
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+.ri-district-label,
+.ri-city-label {
+    color: #6c757d;
+}
+
+.ri-district-label i,
+.ri-city-label i {
+    margin-right: 10px;
+}
+
+.ri-district-value,
+.ri-city-value {
+    color: #343a40;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.ri-room-meta {
+    display: flex;
+    justify-content: space-between;
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 15px 0;
+}
+
+.ri-room-meta i {
+    margin-right: 10px;
+}
+
+.ri-room-description {
+    margin-top: 25px;
+}
+
+.ri-description-title {
+    font-size: 1.3rem;
+    color: #343a40;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.ri-description-content {
+    color: #495057;
+    line-height: 1.7;
+    white-space: pre-line;
+}
+
+/* Card Components */
+.ri-owner-info-card,
+.ri-safety-tips {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+}
+
+.ri-card-header {
+    padding: 12px 20px;
+    color: #fff;
+}
+
+.ri-bg-primary {
+    background-color: #0d6efd;
+}
+
+.ri-bg-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.ri-card-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.ri-card-body {
+    padding: 20px;
+}
+
+.ri-owner-name {
+    color: #343a40;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.ri-contact-info {
+    margin-bottom: 15px;
+}
+
+.ri-contact-info p {
+    margin-bottom: 10px;
+}
+
+.ri-contact-info i {
+    width: 20px;
+    margin-right: 10px;
+}
+
+.ri-contact-info a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+.ri-contact-info a:hover {
+    text-decoration: underline;
+}
+
+.ri-contact-buttons {
+    margin-top: 20px;
+}
+
+.ri-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    text-align: center;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ri-btn i {
+    margin-right: 8px;
+}
+
+.ri-btn-success {
+    background-color: #198754;
+    color: #fff;
+    border: 1px solid #198754;
+}
+
+.ri-btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.ri-btn-outline-primary {
+    background-color: transparent;
+    color: #0d6efd;
+    border: 1px solid #0d6efd;
+}
+
+.ri-btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+/* Safety Tips */
+.ri-safety-tips-list {
+    padding-left: 20px;
+    margin-bottom: 0;
+}
+
+.ri-safety-tips-list li {
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+/* Similar Rooms Section */
+.ri-similar-rooms {
+    padding-top: 20px;
+    border-top: 1px solid #dee2e6;
+    margin-top: 30px;
+}
+
+.ri-section-title {
+    font-size: 1.5rem;
+    color: #343a40;
+    margin-bottom: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .ri-main-image {
+        height: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .ri-col-large,
+    .ri-col-small {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .ri-col-small {
+        margin-top: 30px;
+    }
+
+    .ri-main-image {
+        height: 250px;
+    }
+
+    .ri-room-title {
+        font-size: 1.5rem;
+    }
+
+    .ri-price-value {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .ri-container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .ri-main-image {
+        height: 200px;
+    }
+
+    .ri-room-price-area {
+        flex-direction: column;
+    }
+
+    .ri-room-area {
+        margin-top: 10px;
+    }
+
+    .ri-room-meta {
+        flex-direction: column;
+    }
+
+    .ri-room-status {
+        margin-top: 5px;
+    }
+}

@@ -16,10 +16,10 @@
     <servlet-name>roomController</servlet-name>
     <servlet-class>controller.roomController</servlet-class>
   </servlet>
-  
-  <servlet-mapping>
+    <servlet-mapping>
     <servlet-name>roomController</servlet-name>
     <url-pattern>/room-detail</url-pattern>
+    <url-pattern>/room-info</url-pattern>
     <url-pattern>/rooms</url-pattern>
     <url-pattern>/search-rooms</url-pattern>
     <url-pattern>/add-room</url-pattern>

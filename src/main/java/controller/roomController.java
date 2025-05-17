@@ -22,13 +22,15 @@ import java.util.UUID;
 
 import model.bo.roomBO;
 import model.bean.room;
-
+import model.bean.user;
+import model.bo.userBO;
 /**
  * Servlet implementation class roomController
  */
 @WebServlet(name = "roomController", urlPatterns = {
     "/rooms", 
     "/room-detail", 
+    "/room-info",
     "/add-room", 
     "/edit-room", 
     "/delete-room",
@@ -54,8 +56,7 @@ public class roomController extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	 */	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String action = request.getServletPath();
 		
 		try {
@@ -65,6 +66,9 @@ public class roomController extends HttpServlet {
 					break;
 				case "/room-detail":
 					showRoomDetail(request, response);
+					break;
+				case "/room-info":
+					showRoomInfo(request, response);
 					break;
 				case "/add-room":
 					showAddRoomForm(request, response);
@@ -152,14 +156,17 @@ public class roomController extends HttpServlet {
 		
 		request.getRequestDispatcher("addroom.jsp").forward(request, response);
 	}
-	
-	private void addRoom(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		private void addRoom(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// Check if user is logged in
 		HttpSession session = request.getSession();
 		if (session.getAttribute("user") == null) {
 			response.sendRedirect("login.jsp");
 			return;
 		}
+		
+		// Get user from session
+		user currentUser = (user) session.getAttribute("user");
+		String user_id = currentUser.getId();
 		
 		// Get parameters from form
 		String title = request.getParameter("title");
@@ -184,7 +191,7 @@ public class roomController extends HttpServlet {
 		
 		// Save room to database
 		boolean success = roomBO.addRoom(title, description, roomType, price, area, address, city, district, 
-										imagesPath, createdAt, expiryDate, status);
+										imagesPath, createdAt, expiryDate, status, user_id);
 		
 		if (success) {
 			request.setAttribute("message", "Đăng tin thành công. Tin của bạn đang chờ duyệt.");
@@ -257,10 +264,9 @@ public class roomController extends HttpServlet {
 			if (expiryDays != null && !expiryDays.isEmpty()) {
 				expiryDate = LocalDate.now().plusDays(Integer.parseInt(expiryDays)).format(DateTimeFormatter.ISO_LOCAL_DATE);
 			}
-			
-			boolean success = roomBO.updateRoom(id, title, description, existingRoom.getRoomType(), 
+					boolean success = roomBO.updateRoom(id, title, description, existingRoom.getRoomType(), 
 												price, area, address, city, district, imagesPath, 
-												existingRoom.getCreatedAt(), expiryDate, existingRoom.getStatus());
+												existingRoom.getCreatedAt(), expiryDate, existingRoom.getStatus(), existingRoom.getUser_id());
 			
 			if (success) {
 				request.setAttribute("message", "Cập nhật tin thành công!");
@@ -445,5 +451,24 @@ public class roomController extends HttpServlet {
 			}
 		}
 		return "";
+	}
+
+	private void showRoomInfo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String id = request.getParameter("id");
+		room room = roomBO.getRoomByID(id);
+		
+		if (room != null) {
+			// Get user data associated with this room
+			String userId = room.getUser_id();
+			userBO userBO = new userBO();
+			user owner = userBO.getUserByID(userId);
+			
+			// Set attributes for JSP
+			request.setAttribute("room", room);
+			request.setAttribute("owner", owner);
+			request.getRequestDispatcher("room-info.jsp").forward(request, response);
+		} else {
+			response.sendRedirect("rooms");
+		}
 	}
 }
