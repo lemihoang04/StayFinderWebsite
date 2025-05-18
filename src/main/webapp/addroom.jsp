@@ -24,121 +24,133 @@
                         <p>Điền đầy đủ thông tin để đăng tin hiệu quả hơn</p>
                     </div>
 
-                    <form id="addRoomForm" action="add-room" method="post" enctype="multipart/form-data">
-                        <div class="form-section">
-                            <h2>Thông tin cơ bản</h2>
+                    <!-- Hiển thị thông báo lỗi nếu có -->
+                    <% String error=(String) request.getAttribute("error"); if (error !=null && !error.isEmpty()) { %>
+                        <div class="alert alert-danger"
+                            style="color: #b94a48; background: #f2dede; border: 1px solid #eed3d7; padding: 10px; margin-bottom: 20px;">
+                            <%= error %>
+                        </div>
+                        <% } %>
 
-                            <div class="form-group">
-                                <label for="title">Tiêu đề <span class="required">*</span></label>
-                                <input type="text" id="title" name="title" placeholder="Nhập tiêu đề tin đăng" required>
-                                <small class="form-text">Tiêu đề ngắn gọn, đầy đủ thông tin quan trọng của phòng
-                                    trọ</small>
-                            </div>
+                            <form id="addRoomForm" action="add-room" method="post" enctype="multipart/form-data">
+                                <div class="form-section">
+                                    <h2>Thông tin cơ bản</h2>
 
-                            <div class="form-group">
-                                <label for="description">Mô tả chi tiết <span class="required">*</span></label>
-                                <textarea id="description" name="description" rows="6"
-                                    placeholder="Mô tả chi tiết về phòng trọ của bạn" required></textarea>
-                                <small class="form-text">Cung cấp thông tin chi tiết về phòng trọ, tiện ích xung quanh,
-                                    điều kiện sống, v.v.</small>
-                            </div>
+                                    <div class="form-group">
+                                        <label for="title">Tiêu đề <span class="required">*</span></label>
+                                        <input type="text" id="title" name="title" placeholder="Nhập tiêu đề tin đăng"
+                                            required>
+                                        <small class="form-text">Tiêu đề ngắn gọn, đầy đủ thông tin quan trọng của phòng
+                                            trọ</small>
+                                    </div>
 
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="price">Giá cho thuê <span class="required">*</span></label>
-                                    <div class="input-with-unit">
-                                        <input type="number" id="price" name="price" min="0" step="100000"
-                                            placeholder="Nhập giá cho thuê" required>
-                                        <span class="unit">VNĐ/tháng</span>
+                                    <div class="form-group">
+                                        <label for="description">Mô tả chi tiết <span class="required">*</span></label>
+                                        <textarea id="description" name="description" rows="6"
+                                            placeholder="Mô tả chi tiết về phòng trọ của bạn" required></textarea>
+                                        <small class="form-text">Cung cấp thông tin chi tiết về phòng trọ, tiện ích xung
+                                            quanh,
+                                            điều kiện sống, v.v.</small>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="price">Giá cho thuê <span class="required">*</span></label>
+                                            <div class="input-with-unit">
+                                                <input type="number" id="price" name="price" min="0" step="100000"
+                                                    placeholder="Nhập giá cho thuê" required>
+                                                <span class="unit">VNĐ/tháng</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="area">Diện tích <span class="required">*</span></label>
+                                            <div class="input-with-unit">
+                                                <input type="number" id="area" name="area" min="1" step="0.5"
+                                                    placeholder="Nhập diện tích" required>
+                                                <span class="unit">m²</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="form-group">
-                                    <label for="area">Diện tích <span class="required">*</span></label>
-                                    <div class="input-with-unit">
-                                        <input type="number" id="area" name="area" min="1" step="0.5"
-                                            placeholder="Nhập diện tích" required>
-                                        <span class="unit">m²</span>
+                                <div class="form-section">
+                                    <h2>Địa chỉ cho thuê</h2>
+
+                                    <div class="form-group">
+                                        <label for="city">Tỉnh/Thành phố <span class="required">*</span></label>
+                                        <select id="city" name="city" required>
+                                            <option value="">Chọn Tỉnh/Thành phố</option>
+                                            <option value="hcm">TP. Hồ Chí Minh</option>
+                                            <option value="hanoi">Hà Nội</option>
+                                            <option value="danang">Đà Nẵng</option>
+                                            <option value="cantho">Cần Thơ</option>
+                                            <!-- Thêm các tỉnh/thành phố khác -->
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="district">Quận/Huyện <span class="required">*</span></label>
+                                        <select id="district" name="district" disabled required>
+                                            <option value="">Vui lòng chọn Tỉnh/Thành phố trước</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="address">Địa chỉ cụ thể <span class="required">*</span></label>
+                                        <input type="text" id="address" name="address"
+                                            placeholder="Số nhà, tên đường, phường/xã" required>
+                                        <small class="form-text">VD: 123 Nguyễn Văn Linh, Phường Tân Thuận Đông</small>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div class="form-section">
-                            <h2>Địa chỉ cho thuê</h2>
+                                <div class="form-section">
+                                    <h2>Hình ảnh & Media</h2>
 
-                            <div class="form-group">
-                                <label for="city">Tỉnh/Thành phố <span class="required">*</span></label>
-                                <select id="city" name="city" required>
-                                    <option value="">Chọn Tỉnh/Thành phố</option>
-                                    <option value="hcm">TP. Hồ Chí Minh</option>
-                                    <option value="hanoi">Hà Nội</option>
-                                    <option value="danang">Đà Nẵng</option>
-                                    <option value="cantho">Cần Thơ</option>
-                                    <!-- Thêm các tỉnh/thành phố khác -->
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="district">Quận/Huyện <span class="required">*</span></label>
-                                <select id="district" name="district" disabled required>
-                                    <option value="">Vui lòng chọn Tỉnh/Thành phố trước</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="address">Địa chỉ cụ thể <span class="required">*</span></label>
-                                <input type="text" id="address" name="address"
-                                    placeholder="Số nhà, tên đường, phường/xã" required>
-                                <small class="form-text">VD: 123 Nguyễn Văn Linh, Phường Tân Thuận Đông</small>
-                            </div>
-                        </div>
-
-                        <div class="form-section">
-                            <h2>Hình ảnh & Media</h2>
-
-                            <div class="form-group">
-                                <label for="images">Hình ảnh <span class="required">*</span></label>
-                                <div class="image-uploader">
-                                    <div class="upload-placeholder" id="uploadPlaceholder">
-                                        <i class="fas fa-cloud-upload-alt"></i>
-                                        <p>Kéo thả hình ảnh vào đây hoặc nhấp để chọn</p>
-                                        <small>Tối đa 8 hình ảnh, định dạng JPG, PNG. Dung lượng tối đa: 2MB mỗi
-                                            ảnh.</small>
+                                    <div class="form-group">
+                                        <label for="images">Hình ảnh <span class="required">*</span></label>
+                                        <div class="image-uploader">
+                                            <div class="upload-placeholder" id="uploadPlaceholder">
+                                                <i class="fas fa-cloud-upload-alt"></i>
+                                                <p>Kéo thả hình ảnh vào đây hoặc nhấp để chọn</p>
+                                                <small>Tối đa 8 hình ảnh, định dạng JPG, PNG. Dung lượng tối đa: 2MB mỗi
+                                                    ảnh.</small>
+                                            </div>
+                                            <input type="file" id="images" name="images" accept="image/*" multiple
+                                                required hidden>
+                                            <div class="image-preview" id="imagePreview"></div>
+                                        </div>
                                     </div>
-                                    <input type="file" id="images" name="images" accept="image/*" multiple required
-                                        hidden>
-                                    <div class="image-preview" id="imagePreview"></div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div class="form-section">
-                            <h2>Thông tin liên hệ & Khác</h2>
+                                <div class="form-section">
+                                    <h2>Thông tin liên hệ & Khác</h2>
 
-                            <div class="form-group">
-                                <label for="expiryDate">Thời hạn đăng tin <span class="required">*</span></label>
-                                <select id="expiryDate" name="expiry_date" required>
-                                    <option value="7">7 ngày</option>
-                                    <option value="15">15 ngày</option>
-                                    <option value="30" selected>30 ngày</option>
-                                    <option value="60">60 ngày</option>
-                                    <option value="90">90 ngày</option>
-                                </select>
-                            </div>
+                                    <div class="form-group">
+                                        <label for="expiryDate">Thời hạn đăng tin <span
+                                                class="required">*</span></label>
+                                        <select id="expiryDate" name="expiry_date" required>
+                                            <option value="7">7 ngày</option>
+                                            <option value="15">15 ngày</option>
+                                            <option value="30" selected>30 ngày</option>
+                                            <option value="60">60 ngày</option>
+                                            <option value="90">90 ngày</option>
+                                        </select>
+                                    </div>
 
-                            <div class="form-group checkbox-group">
-                                <input type="checkbox" id="terms" name="terms" required>
-                                <label for="terms">Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a href="#">Quy
-                                        định đăng tin</a> của StayFinder</label>
-                            </div>
-                        </div>
+                                    <div class="form-group checkbox-group">
+                                        <input type="checkbox" id="terms" name="terms" required>
+                                        <label for="terms">Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a
+                                                href="#">Quy
+                                                định đăng tin</a> của StayFinder</label>
+                                    </div>
+                                </div>
 
-                        <div class="form-actions">
-                            <button type="submit" class="btn-primary">Đăng tin ngay</button>
-                            <button type="button" class="btn-outline" id="saveAsDraft">Lưu nháp</button>
-                        </div>
-                    </form>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Đăng tin ngay</button>
+                                    <button type="button" class="btn-outline" id="saveAsDraft">Lưu nháp</button>
+                                </div>
+                            </form>
                 </div>
             </div>
         </main>

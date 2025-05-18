@@ -156,12 +156,12 @@ public class roomController extends HttpServlet {
 		
 		request.getRequestDispatcher("addroom.jsp").forward(request, response);
 	}
-		private void addRoom(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	
+	private boolean handleAddRoom(HttpServletRequest request) throws ServletException, IOException {
 		// Check if user is logged in
 		HttpSession session = request.getSession();
 		if (session.getAttribute("user") == null) {
-			response.sendRedirect("login.jsp");
-			return;
+			return false;
 		}
 		
 		// Get user from session
@@ -187,13 +187,15 @@ public class roomController extends HttpServlet {
 		
 		// Default values for other fields
 		String roomType = "standard";  // Default room type
-		String status = "pending";     // Default status
+		String status = "available";     // Default status
 		
 		// Save room to database
-		boolean success = roomBO.addRoom(title, description, roomType, price, area, address, city, district, 
+		return roomBO.addRoom(title, description, roomType, price, area, address, city, district, 
 										imagesPath, createdAt, expiryDate, status, user_id);
-		
-		if (success) {
+	}
+	
+	private void addRoom(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if (handleAddRoom(request)) {
 			request.setAttribute("message", "Đăng tin thành công. Tin của bạn đang chờ duyệt.");
 			request.getRequestDispatcher("success.jsp").forward(request, response);
 		} else {
