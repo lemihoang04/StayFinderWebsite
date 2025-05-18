@@ -6,6 +6,7 @@ public class user {
 	private String password;
 	private String email;
 	private String phone;
+	private String name;
 
 	public String getId() {
 		return id;
@@ -46,19 +47,28 @@ public class user {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	@Override
 	public String toString() {
 		return "user [id=" + id + ", username=" + username + ", password=" + password + ", email=" + email + ", phone="
-				+ phone + "]";
+				+ phone + ", name=" + name + "]";
 	}
 
-	public user(String id, String username, String password, String email, String phone) {
+	public user(String id, String username, String password, String email, String phone, String name) {
 		this.id = id;
 		this.username = username;
 		this.password = password;
 		this.email = email;
 		this.phone = phone;
+		this.name = name;
 	}	
 	
 }

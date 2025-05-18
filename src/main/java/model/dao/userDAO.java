@@ -20,7 +20,7 @@ public class userDAO {
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				list.add(new user(rs.getString("id"), rs.getString("username"), rs.getString("password"),
-						rs.getString("email"), rs.getString("phone")));
+						rs.getString("email"), rs.getString("phone"), rs.getString("name")));
 			}
 		} catch (Exception e) {
 
@@ -39,7 +39,7 @@ public class userDAO {
 			rs = ps.executeQuery();
 			if (rs.next()) {
 				u = new user(rs.getString("id"), rs.getString("username"), rs.getString("password"),
-						rs.getString("email"), rs.getString("phone"));
+						rs.getString("email"), rs.getString("phone"), rs.getString("name"));
 			}
 		} catch (Exception e) {
 
@@ -59,7 +59,7 @@ public class userDAO {
 			rs = ps.executeQuery();
 			if (rs.next()) {
 				u = new user(rs.getString("id"), rs.getString("username"), rs.getString("password"),
-						rs.getString("email"), rs.getString("phone"));
+						rs.getString("email"), rs.getString("phone"), rs.getString("name"));
 			}
 		} catch (Exception e) {
 
@@ -67,6 +67,7 @@ public class userDAO {
 
 		return u;
 	}
+	
 	public ArrayList<user> getUserListBySearch(String search_type, String searchtxt) {
 		ArrayList<user> list = new ArrayList<>();
 		String query = "SELECT * FROM users WHERE 1 = 1";
@@ -82,7 +83,7 @@ public class userDAO {
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				list.add(new user(rs.getString("id"), rs.getString("username"), rs.getString("password"),
-						rs.getString("email"), rs.getString("phone")));
+						rs.getString("email"), rs.getString("phone"), rs.getString("name")));
 			}
 		} catch (Exception e) {
 
@@ -101,7 +102,7 @@ public class userDAO {
 			rs = ps.executeQuery();
 			if (rs.next()) {
 				u = new user(rs.getString("id"), rs.getString("username"), rs.getString("password"),
-						rs.getString("email"), rs.getString("phone"));
+						rs.getString("email"), rs.getString("phone"), rs.getString("name"));
 			}
 		} catch (Exception e) {
 
@@ -110,8 +111,8 @@ public class userDAO {
 		return u;
 	}
 
-	public boolean addUser(String id, String username, String password, String email, String phone) {
-		String query = "INSERT INTO users (id, username, password, email, phone) VALUES (?, ?, ?, ?, ?)";
+	public boolean addUser(String id, String username, String password, String email, String phone, String name) {
+		String query = "INSERT INTO users (id, username, password, email, phone, name) VALUES (?, ?, ?, ?, ?, ?)";
 		try {
 			conn = new DBconnect().getConnection();
 			ps = conn.prepareStatement(query);
@@ -120,6 +121,7 @@ public class userDAO {
 			ps.setString(3, password);
 			ps.setString(4, email);
 			ps.setString(5, phone);
+			ps.setString(6, name);
 			if (ps.executeUpdate() > 0) {
 				return true;
 			}
@@ -130,8 +132,8 @@ public class userDAO {
 		return false;
 	}
 
-	public boolean updateUser(String id, String username, String password, String email, String phone) {
-		String query = "UPDATE users SET username = ?, password = ?, email = ?, phone = ? WHERE id = ?";
+	public boolean updateUser(String id, String username, String password, String email, String phone, String name) {
+		String query = "UPDATE users SET username = ?, password = ?, email = ?, phone = ?, name = ? WHERE id = ?";
 		try {
 			conn = new DBconnect().getConnection();
 			ps = conn.prepareStatement(query);
@@ -139,7 +141,8 @@ public class userDAO {
 			ps.setString(2, password);
 			ps.setString(3, email);
 			ps.setString(4, phone);
-			ps.setString(5, id);
+			ps.setString(5, name);
+			ps.setString(6, id);
 			if (ps.executeUpdate() > 0) {
 				return true;
 			}
