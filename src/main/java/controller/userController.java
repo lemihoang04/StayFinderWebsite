@@ -203,6 +203,20 @@ public class userController extends HttpServlet {
 			String phone = request.getParameter("phone");
 			String name = request.getParameter("name");
 			
+			// Check if email already exists for another user
+			if (!email.equals(currentUser.getEmail()) && userBO.isEmailExist(email, id)) {
+				request.setAttribute("errorMessage", "Email already in use by another account");
+				request.getRequestDispatcher("/profile.jsp").forward(request, response);
+				return;
+			}
+			
+			// Check if phone already exists for another user
+			if (!phone.equals(currentUser.getPhone()) && userBO.isPhoneExist(phone, id)) {
+				request.setAttribute("errorMessage", "Phone number already in use by another account");
+				request.getRequestDispatcher("/profile.jsp").forward(request, response);
+				return;
+			}
+			
 			if (password == null || password.isEmpty()) {
 				password = currentUser.getPassword(); // Keep old password if not provided
 			}
@@ -212,6 +226,7 @@ public class userController extends HttpServlet {
 				// Update the session with new user data
 				user updatedUser = userBO.getUserByID(id);
 				session.setAttribute("user", updatedUser);
+				
 				request.setAttribute("successMessage", "Profile updated successfully");
 			} else {
 				request.setAttribute("errorMessage", "Failed to update profile");

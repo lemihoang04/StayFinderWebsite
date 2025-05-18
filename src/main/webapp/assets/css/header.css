@@ -12,7 +12,7 @@ body {
     color: #333;
 }
 
-.container {
+.header-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 15px;
@@ -33,19 +33,19 @@ header {
     padding: 15px 0;
 }
 
-.logo a {
+.header-logo a {
     text-decoration: none;
     display: flex;
     align-items: center;
 }
 
-.logo-text {
+.header-logo-text {
     font-size: 28px;
     font-weight: 700;
     color: #333;
 }
 
-.highlight {
+.header-highlight {
     color: #3498db;
 }
 
@@ -55,11 +55,11 @@ header {
     gap: 20px;
 }
 
-.contact-info {
+.header-contact-info {
     margin-right: 15px;
 }
 
-.contact-info span {
+.header-contact-info span {
     display: flex;
     align-items: center;
     gap: 5px;
@@ -67,12 +67,12 @@ header {
     color: #666;
 }
 
-.user-actions {
+.header-user-actions {
     display: flex;
     gap: 10px;
 }
 
-.btn {
+.header-btn {
     padding: 8px 15px;
     border-radius: 4px;
     font-weight: 500;
@@ -81,48 +81,48 @@ header {
     cursor: pointer;
 }
 
-.btn-post {
+.header-btn-post {
     background-color: #3498db;
     color: white;
 }
 
-.btn-post:hover {
+.header-btn-post:hover {
     background-color: #2980b9;
 }
 
-.btn-login {
+.header-btn-login {
     background-color: #f8f9fa;
     color: #333;
     border: 1px solid #ddd;
 }
 
-.btn-login:hover {
+.header-btn-login:hover {
     background-color: #e9ecef;
 }
 
-.btn-register {
+.header-btn-register {
     background-color: #333;
     color: white;
 }
 
-.btn-register:hover {
+.header-btn-register:hover {
     background-color: #222;
 }
 
-.main-nav {
+.header-main-nav {
     border-top: 1px solid #eee;
 }
 
-.main-nav ul {
+.header-main-nav ul {
     display: flex;
     list-style: none;
 }
 
-.main-nav li {
+.header-main-nav li {
     position: relative;
 }
 
-.main-nav a {
+.header-main-nav a {
     display: block;
     padding: 15px;
     text-decoration: none;
@@ -131,12 +131,12 @@ header {
     transition: all 0.3s ease;
 }
 
-.main-nav a:hover,
-.main-nav a.active {
+.header-main-nav a:hover,
+.header-main-nav a.header-active {
     color: #3498db;
 }
 
-.main-nav a.active:after {
+.header-main-nav a.header-active:after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -147,13 +147,13 @@ header {
 }
 
 /* User Dropdown Menu */
-.user-dropdown {
+.header-user-dropdown {
     position: relative;
     display: inline-block;
 }
 
-.dropdown-toggle {
-	padding: 12px 15px;
+.header-dropdown-toggle {
+    padding: 12px 15px;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -162,11 +162,11 @@ header {
     border: 1px solid #ddd;
 }
 
-.dropdown-toggle i {
-    font-size: 16px;
+.header-dropdown-toggle i {
+    font-size: 22px;
 }
 
-.dropdown-menu {
+.header-dropdown-menu {
     display: none;
     position: absolute;
     right: 0;
@@ -178,7 +178,7 @@ header {
     overflow: hidden;
 }
 
-.dropdown-menu a {
+.header-dropdown-menu a {
     color: #333;
     text-decoration: none;
     padding: 12px 15px;
@@ -188,16 +188,16 @@ header {
     transition: background-color 0.3s;
 }
 
-.dropdown-menu a:hover {
+.header-dropdown-menu a:hover {
     background-color: #f8f9fa;
     color: #3498db;
 }
 
-.dropdown-menu a i {
+.header-dropdown-menu a i {
     width: 16px;
 }
 
-.user-dropdown:hover .dropdown-menu {
+.header-user-dropdown:hover .header-dropdown-menu {
     display: block;
 }
 
@@ -209,7 +209,7 @@ header {
         gap: 10px;
     }
 
-    .main-nav ul {
+    .header-main-nav ul {
         flex-wrap: wrap;
     }
 }
@@ -226,19 +226,19 @@ header {
         justify-content: space-between;
     }
 
-    .contact-info {
+    .header-contact-info {
         display: none;
     }
 
-    .main-nav ul {
+    .header-main-nav ul {
         flex-direction: column;
     }
 
-    .main-nav a.active:after {
+    .header-main-nav a.header-active:after {
         display: none;
     }
 
-    .dropdown-menu {
+    .header-dropdown-menu {
         width: 100%;
         position: static;
         box-shadow: none;
@@ -246,11 +246,11 @@ header {
         margin-top: 5px;
     }
 
-    .user-dropdown {
+    .header-user-dropdown {
         width: 100%;
     }
 
-    .dropdown-toggle {
+    .header-dropdown-toggle {
         width: 100%;
         justify-content: center;
     }

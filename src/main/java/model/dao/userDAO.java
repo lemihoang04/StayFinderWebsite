@@ -168,4 +168,52 @@ public class userDAO {
 
 		return false;
 	}
+
+	public boolean checkEmailExists(String email, String currentUserId) {
+		String query = "SELECT COUNT(*) FROM users WHERE email = ? AND id != ?";
+		try {
+			conn = new DBconnect().getConnection();
+			ps = conn.prepareStatement(query);
+			ps.setString(1, email);
+			ps.setString(2, currentUserId);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1) > 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			closeResources();
+		}
+		return false;
+	}
+	
+	public boolean checkPhoneExists(String phone, String currentUserId) {
+		String query = "SELECT COUNT(*) FROM users WHERE phone = ? AND id != ?";
+		try {
+			conn = new DBconnect().getConnection();
+			ps = conn.prepareStatement(query);
+			ps.setString(1, phone);
+			ps.setString(2, currentUserId);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1) > 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			closeResources();
+		}
+		return false;
+	}
+	
+	private void closeResources() {
+		try {
+			if (rs != null) rs.close();
+			if (ps != null) ps.close();
+			if (conn != null) conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

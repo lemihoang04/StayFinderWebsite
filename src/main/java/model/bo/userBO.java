@@ -24,6 +24,14 @@ public class userBO {
 			return true;
 		return false;
 	}
+	
+	public boolean isEmailExist(String email, String currentUserId) {
+		return udao.checkEmailExists(email, currentUserId);
+	}
+	
+	public boolean isPhoneExist(String phone, String currentUserId) {
+		return udao.checkPhoneExists(phone, currentUserId);
+	}
 
 	public boolean addUser(String id, String username, String password, String email, String phone, String name) {
 		if (udao.addUser(id, username, password, email, phone, name))
