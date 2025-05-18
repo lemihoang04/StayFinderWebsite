@@ -133,7 +133,7 @@
                                                             </c:choose>
                                                         </td>
                                                         <td class="room-actions">
-                                                            <a href="room-detail?id=${room.id}" class="btn-view"
+                                                            <a href="room-info?id=${room.id}" class="btn-view"
                                                                 title="Xem chi tiết">
                                                                 <i class="fas fa-eye"></i>
                                                             </a>

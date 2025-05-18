@@ -10,7 +10,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="assets/css/header.css?v=5">
         <link rel="stylesheet" href="assets/css/footer.css?v=3">
-        <link rel="stylesheet" href="assets/css/index.css?v=3">
+        <link rel="stylesheet" href="assets/css/index.css?v=1.2">
     </head>
 
     <body>

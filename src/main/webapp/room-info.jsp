@@ -90,6 +90,10 @@
                                         <i class="far fa-calendar-alt"></i>
                                         <span>Ngày đăng: ${room.createdAt}</span>
                                     </div>
+                                    <div class="ri-room-created">
+                                        <i class="far fa-calendar-alt"></i>
+                                        <span>Ngày hết hạn: ${room.expiryDate}</span>
+                                    </div>
                                     <div class="ri-room-status">
                                         <span class="ri-status-label">Trạng thái:</span>
                                         <c:choose>
