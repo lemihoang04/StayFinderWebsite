@@ -34,6 +34,19 @@
     <url-pattern>/register</url-pattern>
     <url-pattern>/logout</url-pattern>
     <url-pattern>/profile</url-pattern>
-    <url-pattern>/admin/users</url-pattern>
+    <url-pattern>/admin_users</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>adminController</display-name>
+    <servlet-name>adminController</servlet-name>
+    <servlet-class>controller.adminController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>adminController</servlet-name>
+    <url-pattern>/admin_login</url-pattern>
+    <url-pattern>/admin</url-pattern>
+    <url-pattern>/admin_logout</url-pattern>
+    <url-pattern>/admin_dashboard</url-pattern>
   </servlet-mapping>
 </web-app>

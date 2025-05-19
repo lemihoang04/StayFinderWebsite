@@ -24,11 +24,11 @@ public class userBO {
 			return true;
 		return false;
 	}
-	
+
 	public boolean isEmailExist(String email, String currentUserId) {
 		return udao.checkEmailExists(email, currentUserId);
 	}
-	
+
 	public boolean isPhoneExist(String phone, String currentUserId) {
 		return udao.checkPhoneExists(phone, currentUserId);
 	}
@@ -49,5 +49,17 @@ public class userBO {
 		if (udao.deleteUser(id))
 			return true;
 		return false;
+	}
+
+	public boolean isEmailExist(String email) {
+		return udao.checkEmailExists(email);
+	}
+
+	public boolean isPhoneExist(String phone) {
+		return udao.checkPhoneExists(phone);
+	}
+
+	public boolean addUserWithAutoId(String username, String password, String email, String phone, String name) {
+		return udao.addUserWithAutoId(username, password, email, phone, name);
 	}
 }

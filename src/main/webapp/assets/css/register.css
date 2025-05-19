@@ -207,6 +207,30 @@ main {
     text-decoration: underline;
 }
 
+.error-message {
+    background-color: #ffebee;
+    color: #e53935;
+    border-left: 4px solid #e53935;
+    padding: 12px 15px;
+    margin-bottom: 25px;
+    border-radius: 4px;
+    font-size: 14px;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.success-message {
+    background-color: #e8f5e9;
+    color: #43a047;
+    border-left: 4px solid #43a047;
+    padding: 12px 15px;
+    margin-bottom: 25px;
+    border-radius: 4px;
+    font-size: 14px;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .form-row {

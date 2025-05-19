@@ -24,18 +24,33 @@
                         <p>Tạo tài khoản để sử dụng đầy đủ tính năng của StayFinder</p>
                     </div>
 
+                    <% if (request.getAttribute("errorMessage") !=null) { %>
+                        <div class="error-message">
+                            <%= request.getAttribute("errorMessage") %>
+                        </div>
+                    <% } %>
+
                     <form class="register-form" action="register" method="post" id="registrationForm">
                         <div class="form-group">
                             <label for="username"><i class="fas fa-user"></i> Tên đăng nhập <span
                                     class="required">*</span></label>
-                            <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập" required>
-                            <small class="form-text">Tên đăng nhập từ 5-20 ký tự, không chứa ký tự đặc biệt</small>
+                            <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập"
+                                required>
+                            <small class="form-text">Tên đăng nhập từ 5-20 ký tự, không chứa ký tự đặc
+                                biệt</small>
                         </div>
 
                         <div class="form-group">
                             <label for="email"><i class="fas fa-envelope"></i> Email <span
                                     class="required">*</span></label>
-                            <input type="email" id="email" name="email" placeholder="Nhập địa chỉ email" required>
+                            <input type="email" id="email" name="email" placeholder="Nhập địa chỉ email"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name"><i class="fas fa-user-circle"></i> Họ và tên <span
+                                    class="required">*</span></label>
+                            <input type="text" id="name" name="name" placeholder="Nhập họ và tên" required>
                         </div>
 
                         <div class="form-group">
@@ -70,8 +85,8 @@
 
                         <div class="form-group terms">
                             <input type="checkbox" id="agree" name="agree" required>
-                            <label for="agree">Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a href="#">Chính
-                                    sách bảo mật</a></label>
+                            <label for="agree">Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a
+                                    href="#">Chính sách bảo mật</a></label>
                         </div>
 
                         <button type="submit" class="btn-register">Đăng ký</button>

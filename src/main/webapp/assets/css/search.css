@@ -72,12 +72,12 @@
     display: grid;
     grid-template-columns: 300px 1fr;
     gap: 30px;
-    padding: 40px 0;
+    padding: 40px 20px;
 }
 
 /* Filters Sidebar */
 .sf-filters-sidebar {
-/*     position: sticky; */
+    /*     position: sticky; */
     top: 90px;
     height: fit-content;
 }

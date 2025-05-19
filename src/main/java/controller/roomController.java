@@ -28,8 +28,8 @@ import model.bo.userBO;
 /**
  * Servlet implementation class roomController
  */
-@WebServlet(name = "roomController", urlPatterns = { "/rooms" , "/room-info", "/add-room", "/edit-room",
-		"/delete-room", "/my-rooms", "/search-rooms" })
+@WebServlet(name = "roomController", urlPatterns = { "/rooms", "/room-info", "/add-room", "/edit-room", "/delete-room",
+		"/my-rooms", "/search-rooms" })
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, // 1 MB
 		maxFileSize = 1024 * 1024 * 10, // 10 MB
 		maxRequestSize = 1024 * 1024 * 50 // 50 MB
@@ -284,9 +284,12 @@ public class roomController extends HttpServlet {
 			// Calculate new expiry date if changed
 			String expiryDate = existingRoom.getExpiryDate();
 			if (expiryDays != null && !expiryDays.isEmpty()) {
-				expiryDate = LocalDate.now().plusDays(Integer.parseInt(expiryDays))
-						.format(DateTimeFormatter.ISO_LOCAL_DATE);
+			    String expiryDateOnly = expiryDate.substring(0, 10); // Lấy phần yyyy-MM-dd
+			    LocalDate currentExpiryDate = LocalDate.parse(expiryDateOnly);
+			    LocalDate newExpiryDate = currentExpiryDate.plusDays(Integer.parseInt(expiryDays));
+			    expiryDate = newExpiryDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
 			}
+
 
 			boolean success = roomBO.updateRoom(id, title, description, existingRoom.getRoomType(), price, area,
 					address, city, district, imagesPath, existingRoom.getCreatedAt(), expiryDate,

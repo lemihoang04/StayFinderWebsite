@@ -6,6 +6,7 @@ import java.util.*;
 import model.bean.user;
 
 import config.DBconnect;
+
 public class userDAO {
 	Connection conn = null;
 	PreparedStatement ps = null;
@@ -28,7 +29,7 @@ public class userDAO {
 
 		return list;
 	}
-	
+
 	public user getUserByID(String id) {
 		user u = null;
 		String query = "SELECT * FROM users WHERE id = ?";
@@ -67,7 +68,7 @@ public class userDAO {
 
 		return u;
 	}
-	
+
 	public ArrayList<user> getUserListBySearch(String search_type, String searchtxt) {
 		ArrayList<user> list = new ArrayList<>();
 		String query = "SELECT * FROM users WHERE 1 = 1";
@@ -187,7 +188,7 @@ public class userDAO {
 		}
 		return false;
 	}
-	
+
 	public boolean checkPhoneExists(String phone, String currentUserId) {
 		String query = "SELECT COUNT(*) FROM users WHERE phone = ? AND id != ?";
 		try {
@@ -206,12 +207,72 @@ public class userDAO {
 		}
 		return false;
 	}
-	
+
+	public boolean checkEmailExists(String email) {
+		String query = "SELECT COUNT(*) FROM users WHERE email = ?";
+		try {
+			conn = new DBconnect().getConnection();
+			ps = conn.prepareStatement(query);
+			ps.setString(1, email);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1) > 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			closeResources();
+		}
+		return false;
+	}
+
+	public boolean checkPhoneExists(String phone) {
+		String query = "SELECT COUNT(*) FROM users WHERE phone = ?";
+		try {
+			conn = new DBconnect().getConnection();
+			ps = conn.prepareStatement(query);
+			ps.setString(1, phone);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1) > 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			closeResources();
+		}
+		return false;
+	}
+
+	public boolean addUserWithAutoId(String username, String password, String email, String phone, String name) {
+		String query = "INSERT INTO users (username, password, email, phone, name) VALUES (?, ?, ?, ?, ?)";
+		try {
+			conn = new DBconnect().getConnection();
+			ps = conn.prepareStatement(query);
+			ps.setString(1, username);
+			ps.setString(2, password);
+			ps.setString(3, email);
+			ps.setString(4, phone);
+			ps.setString(5, name);
+			if (ps.executeUpdate() > 0) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			closeResources();
+		}
+		return false;
+	}
+
 	private void closeResources() {
 		try {
-			if (rs != null) rs.close();
-			if (ps != null) ps.close();
-			if (conn != null) conn.close();
+			if (rs != null)
+				rs.close();
+			if (ps != null)
+				ps.close();
+			if (conn != null)
+				conn.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
