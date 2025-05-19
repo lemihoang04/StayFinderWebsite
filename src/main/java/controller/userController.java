@@ -16,8 +16,7 @@ import model.bean.user;
 /**
  * Servlet implementation class userController
  */
-@WebServlet(name = "userController", urlPatterns = { "/user", "/login", "/register", "/logout", "/profile",
-		"/admin_users" })
+@WebServlet(name = "userController", urlPatterns = { "/user", "/login", "/register", "/logout", "/profile" })
 public class userController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private userBO userBO = new userBO();
@@ -51,13 +50,13 @@ public class userController extends HttpServlet {
 			case "/profile":
 				showProfile(request, response);
 				break;
-			case "/admin_users":
-				listUsers(request, response);
-				break;
 			case "/user":
 				String operation = request.getParameter("operation");
 				if (operation != null) {
 					switch (operation) {
+						case "view":
+							viewUserJson(request, response);
+							break;
 						case "edit":
 							showEditForm(request, response);
 							break;
@@ -295,29 +294,15 @@ public class userController extends HttpServlet {
 		}
 	}
 
-	private void listUsers(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		// Check admin privileges (this should be improved with proper role checking)
-		HttpSession session = request.getSession(false);
-		if (session == null || session.getAttribute("user") == null) {
-			response.sendRedirect(request.getContextPath() + "/login");
-			return;
-		}
-
-		String searchType = request.getParameter("search_type");
-		String searchText = request.getParameter("searchtxt");
-
-		ArrayList<user> userList;
-		if (searchType != null && searchText != null && !searchText.isEmpty()) {
-			// Assuming userBO has the search method or you access userDAO directly
-			userList = new model.dao.userDAO().getUserListBySearch(searchType, searchText);
-		} else {
-			userList = userBO.getUserList();
-		}
-
-		request.setAttribute("userList", userList);
-		request.getRequestDispatcher("/admin_users.jsp").forward(request, response);
-	}
+	// Remove or comment out the listUsers method since it's now handled by
+	// adminController
+	/*
+	 * private void listUsers(HttpServletRequest request, HttpServletResponse
+	 * response)
+	 * throws ServletException, IOException {
+	 * // This functionality is now handled by adminController
+	 * }
+	 */
 
 	private void showEditForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -351,10 +336,12 @@ public class userController extends HttpServlet {
 		}
 
 		boolean success = userBO.updateUser(id, username, password, email, phone, name);
+		HttpSession session = request.getSession();
+
 		if (success) {
-			request.setAttribute("successMessage", "User updated successfully");
+			session.setAttribute("successMessage", "Đã cập nhật thông tin người dùng thành công");
 		} else {
-			request.setAttribute("errorMessage", "Failed to update user");
+			session.setAttribute("errorMessage", "Không thể cập nhật thông tin người dùng");
 		}
 		response.sendRedirect(request.getContextPath() + "/admin_users");
 	}
@@ -368,8 +355,25 @@ public class userController extends HttpServlet {
 		String name = request.getParameter("name");
 
 		if (userBO.isExistUsername(username)) {
-			request.setAttribute("errorMessage", "Username already exists");
-			request.getRequestDispatcher("/admin/user-form.jsp").forward(request, response);
+			HttpSession session = request.getSession();
+			session.setAttribute("errorMessage", "Tên đăng nhập đã tồn tại");
+			response.sendRedirect(request.getContextPath() + "/admin_users");
+			return;
+		}
+
+		// Check for duplicate email
+		if (userBO.isEmailExist(email)) {
+			HttpSession session = request.getSession();
+			session.setAttribute("errorMessage", "Email đã tồn tại");
+			response.sendRedirect(request.getContextPath() + "/admin_users");
+			return;
+		}
+
+		// Check for duplicate phone
+		if (userBO.isPhoneExist(phone)) {
+			HttpSession session = request.getSession();
+			session.setAttribute("errorMessage", "Số điện thoại đã tồn tại");
+			response.sendRedirect(request.getContextPath() + "/admin_users");
 			return;
 		}
 
@@ -377,10 +381,12 @@ public class userController extends HttpServlet {
 		String id = UUID.randomUUID().toString();
 
 		boolean success = userBO.addUser(id, username, password, email, phone, name);
+		HttpSession session = request.getSession();
+
 		if (success) {
-			request.setAttribute("successMessage", "User added successfully");
+			session.setAttribute("successMessage", "Đã thêm người dùng mới thành công");
 		} else {
-			request.setAttribute("errorMessage", "Failed to add user");
+			session.setAttribute("errorMessage", "Không thể thêm người dùng mới");
 		}
 		response.sendRedirect(request.getContextPath() + "/admin_users");
 	}
@@ -390,11 +396,41 @@ public class userController extends HttpServlet {
 		String userId = request.getParameter("id");
 
 		boolean success = userBO.deleteUser(userId);
+		HttpSession session = request.getSession();
+
 		if (success) {
-			request.setAttribute("successMessage", "User deleted successfully");
+			session.setAttribute("successMessage", "Đã xóa người dùng thành công");
 		} else {
-			request.setAttribute("errorMessage", "Failed to delete user");
+			session.setAttribute("errorMessage", "Không thể xóa người dùng");
 		}
 		response.sendRedirect(request.getContextPath() + "/admin_users");
+	}
+
+	// Add this new method to return user data as JSON
+	private void viewUserJson(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String userId = request.getParameter("id");
+		user userData = userBO.getUserByID(userId);
+
+		if (userData != null) {
+			// Set response type to JSON
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+
+			// Create JSON manually (alternatively, you could use a library like Gson)
+			String userJson = "{" +
+					"\"id\":\"" + userData.getId() + "\"," +
+					"\"username\":\"" + userData.getUsername() + "\"," +
+					"\"email\":\"" + userData.getEmail() + "\"," +
+					"\"phone\":\"" + userData.getPhone() + "\"," +
+					"\"name\":\"" + userData.getName() + "\"" +
+					"}";
+
+			// Write JSON to response
+			response.getWriter().write(userJson);
+		} else {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			response.getWriter().write("{\"error\":\"User not found\"}");
+		}
 	}
 }

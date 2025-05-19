@@ -7,17 +7,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import model.bean.admin;
+import model.bean.user;
 import model.bo.adminBO;
+import model.bo.userBO;
 
 /**
  * Servlet implementation class adminController
  */
-@WebServlet(name = "adminController", urlPatterns = { "/admin", "/admin_login", "/admin_logout", "/admin_dashboard" })
+@WebServlet(name = "adminController", urlPatterns = { "/admin", "/admin_login", "/admin_logout", "/admin_dashboard",
+		"/admin_users" })
 public class adminController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private adminBO adminBo = new adminBO();
+	private userBO userBo = new userBO();
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -36,21 +41,24 @@ public class adminController extends HttpServlet {
 		String action = request.getServletPath();
 
 		switch (action) {
-		case "/admin_login":
-			showAdminLoginForm(request, response);
-			break;
-		case "/admin_logout":
-			logoutAdmin(request, response);
-			break;
-		case "/admin_dashboard":
-			showDashboard(request, response);
-			break;
-		case "/admin":
-			redirectToDashboardOrLogin(request, response);
-			break;
-		default:
-			response.sendRedirect(request.getContextPath() + "/admin_login");
-			break;
+			case "/admin_login":
+				showAdminLoginForm(request, response);
+				break;
+			case "/admin_logout":
+				logoutAdmin(request, response);
+				break;
+			case "/admin_dashboard":
+				showDashboard(request, response);
+				break;
+			case "/admin_users":
+				showUsersManager(request, response);
+				break;
+			case "/admin":
+				redirectToDashboardOrLogin(request, response);
+				break;
+			default:
+				response.sendRedirect(request.getContextPath() + "/admin_login");
+				break;
 		}
 	}
 
@@ -63,12 +71,12 @@ public class adminController extends HttpServlet {
 		String action = request.getServletPath();
 
 		switch (action) {
-		case "/admin_login":
-			authenticateAdmin(request, response);
-			break;
-		default:
-			response.sendRedirect(request.getContextPath() + "/admin_login");
-			break;
+			case "/admin_login":
+				authenticateAdmin(request, response);
+				break;
+			default:
+				response.sendRedirect(request.getContextPath() + "/admin_login");
+				break;
 		}
 	}
 
@@ -135,5 +143,44 @@ public class adminController extends HttpServlet {
 		} else {
 			response.sendRedirect(request.getContextPath() + "/admin_login");
 		}
+	}
+
+	private void showUsersManager(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// Check if admin is logged in
+		HttpSession session = request.getSession();
+		if (session.getAttribute("admin") == null) {
+			response.sendRedirect(request.getContextPath() + "/admin_login");
+			return;
+		}
+
+		// Get search parameters
+		String searchType = request.getParameter("search_type");
+		String searchText = request.getParameter("searchtxt");
+
+		// Get user list based on search or get all
+		ArrayList<user> userList;
+		if (searchType != null && searchText != null && !searchText.isEmpty()) {
+			userList = new model.dao.userDAO().getUserListBySearch(searchType, searchText);
+		} else {
+			userList = userBo.getUserList();
+		}
+
+		// Set attributes and forward to the page
+		request.setAttribute("userList", userList);
+
+		// Get any messages from the session (could be set from userController
+		// operations)
+		if (session.getAttribute("successMessage") != null) {
+			request.setAttribute("successMessage", session.getAttribute("successMessage"));
+			session.removeAttribute("successMessage");
+		}
+
+		if (session.getAttribute("errorMessage") != null) {
+			request.setAttribute("errorMessage", session.getAttribute("errorMessage"));
+			session.removeAttribute("errorMessage");
+		}
+
+		request.getRequestDispatcher("/users_manager.jsp").forward(request, response);
 	}
 }

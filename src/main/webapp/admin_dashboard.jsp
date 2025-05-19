@@ -50,7 +50,7 @@
                                 </div>
                             </div>
 
-                            <div class="stat-card warning">
+<%--                             <div class="stat-card warning">
                                 <div class="stat-card-body">
                                     <i class="fas fa-check-circle stat-icon"></i>
                                     <div class="stat-content">
@@ -68,7 +68,7 @@
                                         <h2>${totalViews}</h2>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --%>
                         </div>
                     </div>
 
