@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <!DOCTYPE html>
     <html>
 
@@ -81,18 +82,16 @@
                                         <label for="city">Tỉnh/Thành phố <span class="required">*</span></label>
                                         <select id="city" name="city" required>
                                             <option value="">Chọn Tỉnh/Thành phố</option>
-                                            <option value="hcm">TP. Hồ Chí Minh</option>
-                                            <option value="hanoi">Hà Nội</option>
-                                            <option value="danang">Đà Nẵng</option>
-                                            <option value="cantho">Cần Thơ</option>
-                                            <!-- Thêm các tỉnh/thành phố khác -->
+                                            <c:forEach var="c" items="${cityList}">
+                                                <option value="${c.city_name}">${c.city_name}</option>
+                                            </c:forEach>
                                         </select>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="district">Quận/Huyện <span class="required">*</span></label>
                                         <select id="district" name="district" disabled required>
-                                            <option value="">Vui lòng chọn Tỉnh/Thành phố trước</option>
+                                            <option value="">Chọn Quận/Huyện</option>
                                         </select>
                                     </div>
 
@@ -218,46 +217,25 @@
             });
 
             // City/District dynamic dropdown
+            var cityDistrictMap = {};
+            <c:forEach var="c" items="${cityList}">
+                cityDistrictMap['${c.city_name}'] = [<c:forEach var="d" items="${c.district}" varStatus="status">'${d}'<c:if test="${!status.last}">, </c:if></c:forEach>];
+            </c:forEach>
+
             const citySelect = document.getElementById('city');
             const districtSelect = document.getElementById('district');
-
             citySelect.addEventListener('change', function () {
                 districtSelect.disabled = false;
                 districtSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
-
-                if (this.value === 'hcm') {
-                    const hcmDistricts = ['Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8',
-                        'Quận 9', 'Quận 10', 'Quận 11', 'Quận 12', 'Quận Bình Thạnh', 'Quận Tân Bình', 'Quận Tân Phú',
-                        'Quận Phú Nhuận', 'Quận Gò Vấp', 'Quận Thủ Đức', 'Huyện Bình Chánh', 'Huyện Nhà Bè', 'Huyện Củ Chi', 'Huyện Hóc Môn'];
-
-                    hcmDistricts.forEach(district => {
-                        const option = document.createElement('option');
-                        option.value = district.toLowerCase().replace(/ /g, '-');
-                        option.textContent = district;
-                        districtSelect.appendChild(option);
-                    });
-                } else if (this.value === 'hanoi') {
-                    const hanoiDistricts = ['Ba Đình', 'Hoàn Kiếm', 'Hai Bà Trưng', 'Đống Đa', 'Tây Hồ', 'Cầu Giấy', 'Thanh Xuân',
-                        'Hoàng Mai', 'Long Biên', 'Nam Từ Liêm', 'Bắc Từ Liêm', 'Hà Đông'];
-
-                    hanoiDistricts.forEach(district => {
-                        const option = document.createElement('option');
-                        option.value = district.toLowerCase().replace(/ /g, '-');
-                        option.textContent = district;
-                        districtSelect.appendChild(option);
-                    });
-                } else if (this.value === 'danang') {
-                    const danangDistricts = ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ'];
-
-                    danangDistricts.forEach(district => {
-                        const option = document.createElement('option');
-                        option.value = district.toLowerCase().replace(/ /g, '-');
+                if (this.value && cityDistrictMap[this.value]) {
+                    cityDistrictMap[this.value].forEach(function (district) {
+                        let option = document.createElement('option');
+                        option.value = district;
                         option.textContent = district;
                         districtSelect.appendChild(option);
                     });
                 } else {
                     districtSelect.disabled = true;
-                    districtSelect.innerHTML = '<option value="">Vui lòng chọn Tỉnh/Thành phố trước</option>';
                 }
             });
 

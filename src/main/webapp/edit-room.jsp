@@ -84,21 +84,16 @@
                                         <label for="city">Tỉnh/Thành phố <span class="required">*</span></label>
                                         <select id="city" name="city" required>
                                             <option value="">Chọn Tỉnh/Thành phố</option>
-                                            <option value="hcm" ${room.city=='hcm' ? 'selected' : '' }>TP. Hồ Chí Minh
-                                            </option>
-                                            <option value="hanoi" ${room.city=='hanoi' ? 'selected' : '' }>Hà Nội
-                                            </option>
-                                            <option value="danang" ${room.city=='danang' ? 'selected' : '' }>Đà Nẵng
-                                            </option>
-                                            <option value="cantho" ${room.city=='cantho' ? 'selected' : '' }>Cần Thơ
-                                            </option>
+                                            <c:forEach var="c" items="${cityList}">
+                                                <option value="${c.city_name}" ${room.city==c.city_name ? 'selected' : '' }>${c.city_name}</option>
+                                            </c:forEach>
                                         </select>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="district">Quận/Huyện <span class="required">*</span></label>
                                         <select id="district" name="district" required>
-                                            <option value="${room.district}">${room.district}</option>
+                                            <option value="">Chọn Quận/Huyện</option>
                                         </select>
                                     </div>
 
@@ -270,51 +265,25 @@
                     });
 
                     // City/District dynamic dropdown
+                    // Xây dựng mapping từ cityList cho district
+                    var cityDistrictMap = {};
+                    <c:forEach var="c" items="${cityList}">
+                        cityDistrictMap['${c.city_name}'] = [<c:forEach var="d" items="${c.district}" varStatus="status">'${d}'<c:if test="${!status.last}">, </c:if></c:forEach>];
+                    </c:forEach>
+                    
                     const citySelect = document.getElementById('city');
                     const districtSelect = document.getElementById('district');
-                    const currentDistrict = "${room.district}"; // Lưu lại quận/huyện hiện tại
-
-                    // Khởi tạo danh sách quận huyện
-                    const districts = {
-                        'hcm': ['Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8',
-                            'Quận 9', 'Quận 10', 'Quận 11', 'Quận 12', 'Quận Bình Thạnh', 'Quận Tân Bình', 'Quận Tân Phú',
-                            'Quận Phú Nhuận', 'Quận Gò Vấp', 'Quận Thủ Đức', 'Huyện Bình Chánh', 'Huyện Nhà Bè', 'Huyện Củ Chi', 'Huyện Hóc Môn'],
-                        'hanoi': ['Ba Đình', 'Hoàn Kiếm', 'Hai Bà Trưng', 'Đống Đa', 'Tây Hồ', 'Cầu Giấy', 'Thanh Xuân',
-                            'Hoàng Mai', 'Long Biên', 'Nam Từ Liêm', 'Bắc Từ Liêm', 'Hà Đông'],
-                        'danang': ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ'],
-                        'cantho': ['Ninh Kiều', 'Bình Thủy', 'Cái Răng', 'Ô Môn', 'Thốt Nốt']
-                    };
-
-                    // Khi trang load, tải sẵn quận/huyện của thành phố hiện tại
-                    window.addEventListener('DOMContentLoaded', function () {
-                        if (citySelect.value) {
-                            loadDistricts(citySelect.value, currentDistrict);
-                        }
-                    });
-
-                    citySelect.addEventListener('change', function () {
-                        loadDistricts(this.value, '');
-                    });
-
+                    
                     function loadDistricts(city, selectedDistrict) {
                         districtSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
-
-                        if (districts[city]) {
-                            districts[city].forEach(district => {
+                        if (cityDistrictMap[city]) {
+                            cityDistrictMap[city].forEach(function(district) {
                                 const option = document.createElement('option');
-                                const value = district.toLowerCase().replace(/ /g, '-');
-                                option.value = value;
+                                option.value = district;
                                 option.textContent = district;
-
-                                // So sánh selectedDistrict với cả value và textContent (đã chuẩn hóa)
-                                if (
-                                    value === selectedDistrict ||
-                                    district === selectedDistrict ||
-                                    value === selectedDistrict.toLowerCase().replace(/ /g, '-')
-                                ) {
+                                if (district === selectedDistrict) {
                                     option.selected = true;
                                 }
-
                                 districtSelect.appendChild(option);
                             });
                             districtSelect.disabled = false;
@@ -322,7 +291,17 @@
                             districtSelect.disabled = true;
                         }
                     }
-
+                    
+                    // Khi trang load, tải danh sách quận với giá trị đã lưu
+                    window.addEventListener('DOMContentLoaded', function () {
+                        if (citySelect.value) {
+                            loadDistricts(citySelect.value, "${room.district}");
+                        }
+                    });
+                    
+                    citySelect.addEventListener('change', function () {
+                        loadDistricts(this.value, '');
+                    });
                     // Form validation
                     document.getElementById('editRoomForm').addEventListener('submit', function (event) {
                         const title = document.getElementById('title');

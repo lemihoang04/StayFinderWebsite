@@ -24,6 +24,8 @@ import model.bo.roomBO;
 import model.bean.room;
 import model.bean.user;
 import model.bo.userBO;
+import model.bean.city;
+import model.bo.cityBO;
 
 /**
  * Servlet implementation class roomController
@@ -147,14 +149,16 @@ public class roomController extends HttpServlet {
 	private void listRooms(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// Get all rooms
+		cityBO cityBO = new cityBO();
+		ArrayList<city> cityList = cityBO.getCityList();
+		request.setAttribute("cityList", cityList);
 		ArrayList<room> roomList = roomBO.getRoomList();
 		request.setAttribute("roomList", roomList);
 
-		// Set page title and other attributes
 		request.setAttribute("pageTitle", "Tất cả phòng trọ");
 		request.setAttribute("totalRooms", roomList.size());
 
-		// Forward to search.jsp which will display all rooms
+		// Truyền cityList sang JSP để render select city/district động
 		request.getRequestDispatcher("search.jsp").forward(request, response);
 	}
 
@@ -166,7 +170,9 @@ public class roomController extends HttpServlet {
 			response.sendRedirect("login.jsp");
 			return;
 		}
-
+		cityBO cityBO = new cityBO();
+		ArrayList<city> cityList = cityBO.getCityList();
+		request.setAttribute("cityList", cityList);
 		request.getRequestDispatcher("addroom.jsp").forward(request, response);
 	}
 
@@ -232,6 +238,9 @@ public class roomController extends HttpServlet {
 		room room = roomBO.getRoomByID(id);
 
 		if (room != null) {
+			cityBO cityBO = new cityBO();
+			ArrayList<city> cityList = cityBO.getCityList();
+			request.setAttribute("cityList", cityList);
 			request.setAttribute("room", room);
 			request.getRequestDispatcher("edit-room.jsp").forward(request, response);
 		} else {
@@ -464,6 +473,11 @@ public class roomController extends HttpServlet {
 		request.setAttribute("sortBy", sortBy);
 		request.setAttribute("pageTitle", pageTitle);
 		request.setAttribute("totalRooms", searchResults.size());
+
+		// Đảm bảo cityList cũng được truyền khi search
+		cityBO cityBO = new cityBO();
+		ArrayList<city> cityList = cityBO.getCityList();
+		request.setAttribute("cityList", cityList);
 
 		// Always forward to search.jsp for displaying search results
 		request.getRequestDispatcher("search.jsp").forward(request, response);

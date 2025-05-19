@@ -45,23 +45,24 @@
                                             <div class="sf-filter-option">
                                                 <select name="city" id="citySelect" class="sf-form-control">
                                                     <option value="">Chọn tỉnh/thành phố</option>
-                                                    <option value="Hà Nội" ${city=='Hà Nội' ? 'selected' : '' }>Hà Nội
-                                                    </option>
-                                                    <option value="Hồ Chí Minh" ${city=='Hồ Chí Minh' ? 'selected' : ''
-                                                        }>Hồ Chí Minh</option>
-                                                    <option value="Đà Nẵng" ${city=='Đà Nẵng' ? 'selected' : '' }>Đà
-                                                        Nẵng</option>
-                                                    <option value="Hải Phòng" ${city=='Hải Phòng' ? 'selected' : '' }>
-                                                        Hải Phòng</option>
-                                                    <option value="Cần Thơ" ${city=='Cần Thơ' ? 'selected' : '' }>Cần
-                                                        Thơ</option>
+                                                    <c:forEach var="c" items="${cityList}">
+                                                        <option value="${c.city_name}" ${city==c.city_name ? 'selected'
+                                                            : '' }>${c.city_name}</option>
+                                                    </c:forEach>
                                                 </select>
                                             </div>
                                             <div class="sf-filter-option">
                                                 <select name="district" id="districtSelect" class="sf-form-control"
                                                     ${empty city ? 'disabled' : '' }>
                                                     <option value="">Chọn quận/huyện</option>
-                                                    <!-- Options will be populated based on selected city -->
+                                                    <c:forEach var="c" items="${cityList}">
+                                                        <c:if test="${city == c.city_name}">
+                                                            <c:forEach var="d" items="${c.district}">
+                                                                <option value="${d}" ${district==d ? 'selected' : '' }>
+                                                                    ${d}</option>
+                                                            </c:forEach>
+                                                        </c:if>
+                                                    </c:forEach>
                                                 </select>
                                             </div>
                                         </div>
@@ -257,59 +258,30 @@
 
             <jsp:include page="footer.jsp" />
             <script>
-                // City-district dependency
-                const cityDistrictMap = {
-                    'Hà Nội': ['Ba Đình', 'Hoàn Kiếm', 'Hai Bà Trưng', 'Đống Đa', 'Tây Hồ', 'Cầu Giấy', 'Thanh Xuân', 'Hoàng Mai'],
-                    'Hồ Chí Minh': ['Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 10', 'Bình Thạnh', 'Thủ Đức', 'Tân Bình', 'Phú Nhuận'],
-                    'Đà Nẵng': ['Hải Châu', 'Thanh Khê', 'Liên Chiểu', 'Ngũ Hành Sơn', 'Sơn Trà', 'Cẩm Lệ'],
-                    'Hải Phòng': ['Hồng Bàng', 'Lê Chân', 'Ngô Quyền', 'Kiến An', 'Hải An', 'Đồ Sơn'],
-                    'Cần Thơ': ['Ninh Kiều', 'Bình Thủy', 'Cái Răng', 'Ô Môn', 'Thốt Nốt']
-                };
-
-                // Function to populate district dropdown based on selected city
-                function populateDistricts(selectedCity) {
-                    const districtSelect = document.getElementById('districtSelect');
-
-                    // Clear existing options except the first one
-                    while (districtSelect.options.length > 1) {
-                        districtSelect.remove(1);
-                    }
-
-                    // If no city is selected, disable the district dropdown
-                    if (!selectedCity) {
-                        districtSelect.disabled = true;
-                        return;
-                    }
-
-                    // Enable the district dropdown
-                    districtSelect.disabled = false;
-
-                    // Get districts for the selected city
-                    const districts = cityDistrictMap[selectedCity] || [];
-
-                    // Populate districts
-                    districts.forEach(district => {
-                        const option = document.createElement('option');
-                        option.value = district;
-                        option.textContent = district;
-
-                        // Check if this district was previously selected
-                        const currentDistrict = '${district}';
-                        if (district === currentDistrict) {
-                            option.selected = true;
-                        }
-
-                        districtSelect.appendChild(option);
-                    });
-                }
-
-                // Set up event listener for city dropdown
+                // Thêm mapping từ city tới danh sách district
+                var cityDistrictMap = {};
+                <c:forEach var="c" items="${cityList}">
+                    cityDistrictMap['${c.city_name}'] = [<c:forEach var="d" items="${c.district}" varStatus="status">'${d}'<c:if test="${!status.last}">, </c:if></c:forEach>];
+                </c:forEach>
+                
+                // Cập nhật event listener cho select city
                 document.getElementById('citySelect').addEventListener('change', function () {
-                    populateDistricts(this.value);
+                    var selectedCity = this.value;
+                    var districtSelect = document.getElementById('districtSelect');
+                    // Xóa tất cả các option hiện có, giữ option mặc định
+                    districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                    if (selectedCity && cityDistrictMap[selectedCity]) {
+                        districtSelect.disabled = false;
+                        cityDistrictMap[selectedCity].forEach(function(district) {
+                            var option = document.createElement('option');
+                            option.value = district;
+                            option.textContent = district;
+                            districtSelect.appendChild(option);
+                        });
+                    } else {
+                        districtSelect.disabled = true;
+                    }
                 });
-
-                // Initialize district dropdown based on currently selected city
-                populateDistricts(document.getElementById('citySelect').value);
 
                 // Price preset selection
                 document.querySelectorAll('.sf-price-presets span').forEach(span => {

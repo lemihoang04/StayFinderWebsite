@@ -1,9 +1,11 @@
 package model.bo;
 
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 import model.bean.city;
 import model.dao.cityDAO;
+
 public class cityBO {
 	cityDAO cityDAO = new cityDAO();
 
@@ -11,9 +13,8 @@ public class cityBO {
 		return cityDAO.getCityById(id);
 	}
 
-	public List<city> getAllCities() {
+	public ArrayList<city> getCityList() {
 		return cityDAO.getAllCities();
 	}
-
 
 }

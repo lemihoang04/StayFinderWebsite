@@ -12,8 +12,8 @@ public class cityDAO {
 	PreparedStatement ps = null;
 	ResultSet rs = null;
 
-	public List<city> getAllCities() {
-		List<city> cityList = new ArrayList<>();
+	public ArrayList<city> getAllCities() {
+		ArrayList<city> cityList = new ArrayList<>();
 
 		try {
 			conn = new DBconnect().getConnection();
@@ -26,11 +26,7 @@ public class cityDAO {
 				String city_name = rs.getString("city_name");
 				String[] districts = getDistrictsByCity(id);
 
-				city cityObj = new city();
-				cityObj.setId(id);
-				cityObj.setCity_name(city_name);
-				cityObj.setDistrict(districts);
-
+				city cityObj = new city(id, city_name, districts);
 				cityList.add(cityObj);
 			}
 		} catch (Exception e) {
@@ -38,26 +34,38 @@ public class cityDAO {
 		} finally {
 			closeResources();
 		}
-
 		return cityList;
 	}
 
 	private String[] getDistrictsByCity(int cityId) {
-		List<String> districtList = new ArrayList<>();
+		ArrayList<String> districtList = new ArrayList<>();
+		Connection distConn = null;
+		PreparedStatement distPs = null;
+		ResultSet distRs = null;
 
 		try {
+			distConn = new DBconnect().getConnection();
 			String query = "SELECT district_name FROM districts WHERE city_id = ?";
-			ps = conn.prepareStatement(query);
-			ps.setInt(1, cityId);
-			rs = ps.executeQuery();
+			distPs = distConn.prepareStatement(query);
+			distPs.setInt(1, cityId);
+			distRs = distPs.executeQuery();
 
-			while (rs.next()) {
-				districtList.add(rs.getString("district_name"));
+			while (distRs.next()) {
+				districtList.add(distRs.getString("district_name"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			closeResources();
+			try {
+				if (distRs != null)
+					distRs.close();
+				if (distPs != null)
+					distPs.close();
+				if (distConn != null)
+					distConn.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		return districtList.toArray(new String[0]);
