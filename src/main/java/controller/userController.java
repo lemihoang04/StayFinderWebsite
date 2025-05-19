@@ -326,17 +326,37 @@ public class userController extends HttpServlet {
 		String email = request.getParameter("email");
 		String phone = request.getParameter("phone");
 		String name = request.getParameter("name");
+		
+		HttpSession session = request.getSession();
+		
+		// Get the existing user to compare values
+		user existingUser = userBO.getUserByID(id);
+		if (existingUser == null) {
+			session.setAttribute("errorMessage", "Không tìm thấy người dùng");
+			response.sendRedirect(request.getContextPath() + "/admin_users");
+			return;
+		}
+		
+		// Check for duplicate email (if changed)
+		if (!email.equals(existingUser.getEmail()) && userBO.isEmailExist(email, id)) {
+			session.setAttribute("errorMessage", "Email đã được sử dụng bởi người dùng khác");
+			response.sendRedirect(request.getContextPath() + "/admin_users");
+			return;
+		}
+		
+		// Check for duplicate phone (if changed)
+		if (!phone.equals(existingUser.getPhone()) && userBO.isPhoneExist(phone, id)) {
+			session.setAttribute("errorMessage", "Số điện thoại đã được sử dụng bởi người dùng khác");
+			response.sendRedirect(request.getContextPath() + "/admin_users");
+			return;
+		}
 
-		// If password is empty, get the old password
+		// If password is empty, keep the old password
 		if (password == null || password.isEmpty()) {
-			user existingUser = userBO.getUserByID(id);
-			if (existingUser != null) {
-				password = existingUser.getPassword();
-			}
+			password = existingUser.getPassword();
 		}
 
 		boolean success = userBO.updateUser(id, username, password, email, phone, name);
-		HttpSession session = request.getSession();
 
 		if (success) {
 			session.setAttribute("successMessage", "Đã cập nhật thông tin người dùng thành công");
@@ -377,10 +397,7 @@ public class userController extends HttpServlet {
 			return;
 		}
 
-		// Generate a unique ID
-		String id = UUID.randomUUID().toString();
-
-		boolean success = userBO.addUser(id, username, password, email, phone, name);
+		boolean success = userBO.addUserWithAutoId(username, password, email, phone, name);
 		HttpSession session = request.getSession();
 
 		if (success) {

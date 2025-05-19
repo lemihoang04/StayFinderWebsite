@@ -62,4 +62,8 @@ public class userBO {
 	public boolean addUserWithAutoId(String username, String password, String email, String phone, String name) {
 		return udao.addUserWithAutoId(username, password, email, phone, name);
 	}
+
+	public int getTotalUserCount() {
+		return udao.getTotalUserCount();
+	}
 }

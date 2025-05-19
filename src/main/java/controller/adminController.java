@@ -11,8 +11,10 @@ import java.util.ArrayList;
 
 import model.bean.admin;
 import model.bean.user;
+import model.bean.room;
 import model.bo.adminBO;
 import model.bo.userBO;
+import model.bo.roomBO;
 
 /**
  * Servlet implementation class adminController
@@ -23,6 +25,7 @@ public class adminController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private adminBO adminBo = new adminBO();
 	private userBO userBo = new userBO();
+	private roomBO roomBo = new roomBO();
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -129,6 +132,8 @@ public class adminController extends HttpServlet {
 			throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
 		if (session != null && session.getAttribute("admin") != null) {
+			request.setAttribute("userCount", userBo.getTotalUserCount());
+			request.setAttribute("roomCount", roomBo.getTotalRoomCount());
 			request.getRequestDispatcher("admin_dashboard.jsp").forward(request, response);
 		} else {
 			response.sendRedirect(request.getContextPath() + "/admin_login");
