@@ -20,6 +20,7 @@
     <url-pattern>/edit-room</url-pattern>
     <url-pattern>/delete-room</url-pattern>
     <url-pattern>/my-rooms</url-pattern>
+    <url-pattern>/room</url-pattern>
   </servlet-mapping>
   <servlet>
     <description></description>

@@ -640,7 +640,6 @@ public class roomController extends HttpServlet {
 	private void updateRoomAdmin(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		HttpSession session = request.getSession();
-
 		String id = request.getParameter("id");
 		String title = request.getParameter("title");
 		String description = request.getParameter("description");
@@ -653,22 +652,51 @@ public class roomController extends HttpServlet {
 		String deletedImages = request.getParameter("deletedImages");
 
 		room existingRoom = roomBO.getRoomByID(id);
-
 		if (existingRoom != null) {
-			// Handle images (similar to your existing updateRoom method)
+			// Process deleted images
 			String imagesPath = existingRoom.getImages();
 			if (deletedImages != null && !deletedImages.isEmpty()) {
-				// Process deleted images logic here
-				// ...
+				String[] currentImages = imagesPath.split(",");
+				String[] toDelete = deletedImages.split(",");
+				StringBuilder remainingImages = new StringBuilder();
+				for (String img : currentImages) {
+					boolean keep = true;
+					for (String del : toDelete) {
+						if (img.trim().equals(del.trim())) {
+							keep = false;
+							break;
+						}
+					}
+					if (keep) {
+						if (remainingImages.length() > 0) {
+							remainingImages.append(",");
+						}
+						remainingImages.append(img);
+					}
+				}
+				imagesPath = remainingImages.toString();
 			}
-
 			// Process new images if any
-			// ...
-
+			Collection<Part> parts = request.getParts();
+			boolean hasNewImages = false;
+			for (Part part : parts) {
+				if (part.getName().equals("images") && part.getSize() > 0) {
+					hasNewImages = true;
+					break;
+				}
+			}
+			if (hasNewImages) {
+				String newImagesPath = processImageUploads(request);
+				if (!imagesPath.isEmpty() && !newImagesPath.isEmpty()) {
+					imagesPath += "," + newImagesPath;
+				} else if (!newImagesPath.isEmpty()) {
+					imagesPath = newImagesPath;
+				}
+			}
+			// Update room in database
 			boolean success = roomBO.updateRoom(id, title, description, existingRoom.getRoomType(),
 					price, area, address, city, district, imagesPath, existingRoom.getCreatedAt(),
 					existingRoom.getExpiryDate(), status, existingRoom.getUser_id());
-
 			if (success) {
 				session.setAttribute("successMessage", "Phòng trọ đã được cập nhật thành công");
 			} else {
@@ -677,7 +705,6 @@ public class roomController extends HttpServlet {
 		} else {
 			session.setAttribute("errorMessage", "Không tìm thấy phòng trọ");
 		}
-
 		response.sendRedirect(request.getContextPath() + "/admin_rooms");
 	}
 

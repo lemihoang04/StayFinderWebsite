@@ -194,18 +194,15 @@ public class adminController extends HttpServlet {
 
 	private void showRoomsManager(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// Check if admin is logged in
 		HttpSession session = request.getSession();
 		if (session.getAttribute("admin") == null) {
 			response.sendRedirect(request.getContextPath() + "/admin_login");
 			return;
 		}
 
-		// Get search parameters
 		String searchType = request.getParameter("search_type");
 		String searchText = request.getParameter("searchtxt");
 
-		// Get room list based on search or get all
 		ArrayList<room> roomList;
 		if (searchType != null && searchText != null && !searchText.isEmpty()) {
 			roomList = roomBo.getRoomListBySearch(searchType, searchText);
@@ -213,12 +210,14 @@ public class adminController extends HttpServlet {
 			roomList = roomBo.getRoomList();
 		}
 
-		// Get user list for add room form
 		ArrayList<user> userList = userBo.getUserList();
+		// THÊM: Lấy danh sách city
+		model.bo.cityBO cityBO = new model.bo.cityBO();
+		ArrayList<model.bean.city> cityList = cityBO.getCityList();
 
-		// Set attributes and forward to the page
 		request.setAttribute("roomList", roomList);
 		request.setAttribute("userList", userList);
+		request.setAttribute("cityList", cityList); // truyền cityList sang JSP
 
 		// Pass any session messages to request
 		if (session.getAttribute("successMessage") != null) {

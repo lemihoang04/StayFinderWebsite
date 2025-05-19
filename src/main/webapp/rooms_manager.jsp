@@ -43,10 +43,9 @@
                             <label class="rm-filter-label" for="cityFilter">Thành phố:</label>
                             <select id="cityFilter" class="rm-filter-select" onChange="filterRooms()">
                                 <option value="all">Tất cả</option>
-                                <option value="hcm">Hồ Chí Minh</option>
-                                <option value="hanoi">Hà Nội</option>
-                                <option value="danang">Đà Nẵng</option>
-                                <!-- Add more cities as needed -->
+                                <c:forEach var="c" items="${cityList}">
+                                    <option value="${c.city_name}">${c.city_name}</option>
+                                </c:forEach>
                             </select>
                         </div>
                     </div>
@@ -253,15 +252,18 @@
                                     <label for="edit-city">Thành phố <span class="rm-required">*</span></label>
                                     <select id="edit-city" name="city" required>
                                         <option value="">Chọn thành phố</option>
-                                        <option value="hcm">Hồ Chí Minh</option>
-                                        <option value="hanoi">Hà Nội</option>
-                                        <option value="danang">Đà Nẵng</option>
-                                        <!-- Add more options as needed -->
+                                        <c:forEach var="c" items="${cityList}">
+                                            <option value="${c.city_name}" ${room.city==c.city_name ? 'selected' : '' }>
+                                                ${c.city_name}</option>
+                                        </c:forEach>
                                     </select>
                                 </div>
                                 <div class="rm-form-group">
                                     <label for="edit-district">Quận/Huyện <span class="rm-required">*</span></label>
-                                    <input type="text" id="edit-district" name="district" required>
+                                    <!-- Đổi từ input sang select -->
+                                    <select id="edit-district" name="district" required disabled>
+                                        <option value="">Chọn quận/huyện</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -345,15 +347,17 @@
                                     <label for="add-city">Thành phố <span class="rm-required">*</span></label>
                                     <select id="add-city" name="city" required>
                                         <option value="">Chọn thành phố</option>
-                                        <option value="hcm">Hồ Chí Minh</option>
-                                        <option value="hanoi">Hà Nội</option>
-                                        <option value="danang">Đà Nẵng</option>
-                                        <!-- Add more options as needed -->
+                                        <c:forEach var="c" items="${cityList}">
+                                            <option value="${c.city_name}">${c.city_name}</option>
+                                        </c:forEach>
                                     </select>
                                 </div>
                                 <div class="rm-form-group">
                                     <label for="add-district">Quận/Huyện <span class="rm-required">*</span></label>
-                                    <input type="text" id="add-district" name="district" required>
+                                    <!-- Đổi từ input sang select -->
+                                    <select id="add-district" name="district" required disabled>
+                                        <option value="">Chọn quận/huyện</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -427,6 +431,9 @@
             </div>
 
             <script>
+                // Thêm biến contextPath từ server
+                var contextPath = '<%=request.getContextPath()%>';
+                
                 // Modal functions
                 document.getElementById('rm-add-room-btn').addEventListener('click', function () {
                     document.getElementById('rm-modal-overlay').style.display = 'block';
@@ -434,8 +441,8 @@
                 });
 
                 function viewRoom(roomId) {
-                    // AJAX request to get room data
-                    fetch('room?operation=view&id=' + roomId)
+                    // Update fetch URL với contextPath
+                    fetch(contextPath + '/room?operation=view&id=' + roomId)
                         .then(response => response.json())
                         .then(room => {
                             document.getElementById('view-title').textContent = room.title;
@@ -445,7 +452,7 @@
                             document.getElementById('view-area').textContent = `${room.area} m²`;
                             document.getElementById('view-created').textContent = room.createdAt;
                             document.getElementById('view-expiry').textContent = room.expiryDate;
-                            document.getElementById('view-user').textContent = room.userName; // Assuming the API returns userName
+                            document.getElementById('view-user').textContent = room.userName;
                             document.getElementById('view-description').textContent = room.description;
 
                             // Set status badge
@@ -493,8 +500,7 @@
                 }
 
                 function editRoom(roomId) {
-                    // AJAX request to get room data
-                    fetch('room?operation=view&id=' + roomId)
+                    fetch(contextPath + '/room?operation=view&id=' + roomId)
                         .then(response => response.json())
                         .then(room => {
                             document.getElementById('edit-id').value = room.id;
@@ -503,61 +509,23 @@
                             document.getElementById('edit-area').value = room.area;
                             document.getElementById('edit-address').value = room.address;
                             document.getElementById('edit-city').value = room.city;
-                            document.getElementById('edit-district').value = room.district;
+                            loadEditDistrict(room.city, room.district);
                             document.getElementById('edit-description').value = room.description;
                             document.getElementById('edit-status').value = room.status;
-
-                            // Display existing images
-                            const imagesContainer = document.getElementById('edit-existing-images');
-                            imagesContainer.innerHTML = '';
-                            document.getElementById('edit-deleted-images').value = '';
-
-                            if (room.images && room.images.length > 0) {
-                                const imageUrls = room.images.split(',');
-                                imageUrls.forEach(url => {
-                                    const imageWrapper = document.createElement('div');
-                                    imageWrapper.className = 'rm-preview-item';
-                                    imageWrapper.dataset.url = url;
-
-                                    const img = document.createElement('img');
-                                    img.src = url;
-                                    img.alt = room.title;
-                                    img.className = 'rm-preview-image';
-
-                                    const removeBtn = document.createElement('button');
-                                    removeBtn.className = 'rm-preview-remove';
-                                    removeBtn.innerHTML = '×';
-                                    removeBtn.onclick = function (e) {
-                                        e.preventDefault();
-                                        const deletedInput = document.getElementById('edit-deleted-images');
-                                        if (deletedInput.value) {
-                                            deletedInput.value += ',' + url;
-                                        } else {
-                                            deletedInput.value = url;
-                                        }
-                                        imageWrapper.remove();
-                                    };
-
-                                    imageWrapper.appendChild(img);
-                                    imageWrapper.appendChild(removeBtn);
-                                    imagesContainer.appendChild(imageWrapper);
-                                });
-                            }
-
+                            // ...existing code handling images...
                             document.getElementById('rm-modal-overlay').style.display = 'block';
                             document.getElementById('rm-edit-room-modal').style.display = 'block';
                         })
                         .catch(error => console.error('Error fetching room data:', error));
                 }
-
+                
                 function confirmDelete(roomId, roomTitle) {
                     document.getElementById('delete-id').value = roomId;
                     document.getElementById('delete-title').textContent = roomTitle;
-
                     document.getElementById('rm-modal-overlay').style.display = 'block';
                     document.getElementById('rm-delete-room-modal').style.display = 'block';
                 }
-
+                
                 // Close all modals
                 function closeModals() {
                     document.getElementById('rm-modal-overlay').style.display = 'none';
@@ -633,6 +601,75 @@
 
                         row.style.display = showRow ? '' : 'none';
                     });
+                }
+
+                // Thêm dynamic City/District cho modal Add và Edit
+                var cityDistrictMap = {};
+                <c:forEach var="c" items="${cityList}">
+                    cityDistrictMap['${c.city_name}'] = [<c:forEach var="d" items="${c.district}" varStatus="status">'${d}'<c:if test="${!status.last}">, </c:if></c:forEach>];
+                </c:forEach>
+
+                // Modal Add: cập nhật district khi chọn thành phố
+                document.getElementById('add-city').addEventListener('change', function () {
+                    var districtSelect = document.getElementById('add-district');
+                    districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                    if (this.value && cityDistrictMap[this.value]) {
+                        cityDistrictMap[this.value].forEach(function (district) {
+                            var option = document.createElement('option');
+                            option.value = district;
+                            option.textContent = district;
+                            districtSelect.appendChild(option);
+                        });
+                        districtSelect.disabled = false;
+                    } else {
+                        districtSelect.disabled = true;
+                    }
+                });
+
+                // Modal Edit: cập nhật district khi chọn thành phố
+                document.getElementById('edit-city').addEventListener('change', function () {
+                    loadEditDistrict(this.value, '');
+                });
+
+                function loadEditDistrict(selectedCity, selectedDistrict) {
+                    var districtSelect = document.getElementById('edit-district');
+                    districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                    if (selectedCity && cityDistrictMap[selectedCity]) {
+                        cityDistrictMap[selectedCity].forEach(function (district) {
+                            var option = document.createElement('option');
+                            option.value = district;
+                            option.textContent = district;
+                            if (district === selectedDistrict) {
+                                option.selected = true;
+                            }
+                            districtSelect.appendChild(option);
+                        });
+                        districtSelect.disabled = false;
+                    } else {
+                        districtSelect.disabled = true;
+                    }
+                }
+
+                // Trong hàm editRoom, sau khi gán giá trị cho edit-city, gọi loadEditDistrict để tải quận hiện tại
+                function editRoom(roomId) {
+                    fetch('room?operation=view&id=' + roomId)
+                        .then(response => response.json())
+                        .then(room => {
+                            document.getElementById('edit-id').value = room.id;
+                            document.getElementById('edit-title').value = room.title;
+                            document.getElementById('edit-price').value = room.price;
+                            document.getElementById('edit-area').value = room.area;
+                            document.getElementById('edit-address').value = room.address;
+                            document.getElementById('edit-city').value = room.city;
+                            // Load district based on room.city and set selected = room.district
+                            loadEditDistrict(room.city, room.district);
+                            document.getElementById('edit-description').value = room.description;
+                            document.getElementById('edit-status').value = room.status;
+                            // ...existing code for handling images...
+                            document.getElementById('rm-modal-overlay').style.display = 'block';
+                            document.getElementById('rm-edit-room-modal').style.display = 'block';
+                        })
+                        .catch(error => console.error('Error fetching room data:', error));
                 }
 
                 // Auto-close messages after 5 seconds
