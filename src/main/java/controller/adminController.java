@@ -20,7 +20,7 @@ import model.bo.roomBO;
  * Servlet implementation class adminController
  */
 @WebServlet(name = "adminController", urlPatterns = { "/admin", "/admin_login", "/admin_logout", "/admin_dashboard",
-		"/admin_users" })
+		"/admin_users", "/admin_rooms" })
 public class adminController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private adminBO adminBo = new adminBO();
@@ -55,6 +55,9 @@ public class adminController extends HttpServlet {
 				break;
 			case "/admin_users":
 				showUsersManager(request, response);
+				break;
+			case "/admin_rooms":
+				showRoomsManager(request, response);
 				break;
 			case "/admin":
 				redirectToDashboardOrLogin(request, response);
@@ -187,5 +190,47 @@ public class adminController extends HttpServlet {
 		}
 
 		request.getRequestDispatcher("/users_manager.jsp").forward(request, response);
+	}
+
+	private void showRoomsManager(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// Check if admin is logged in
+		HttpSession session = request.getSession();
+		if (session.getAttribute("admin") == null) {
+			response.sendRedirect(request.getContextPath() + "/admin_login");
+			return;
+		}
+
+		// Get search parameters
+		String searchType = request.getParameter("search_type");
+		String searchText = request.getParameter("searchtxt");
+
+		// Get room list based on search or get all
+		ArrayList<room> roomList;
+		if (searchType != null && searchText != null && !searchText.isEmpty()) {
+			roomList = roomBo.getRoomListBySearch(searchType, searchText);
+		} else {
+			roomList = roomBo.getRoomList();
+		}
+
+		// Get user list for add room form
+		ArrayList<user> userList = userBo.getUserList();
+
+		// Set attributes and forward to the page
+		request.setAttribute("roomList", roomList);
+		request.setAttribute("userList", userList);
+
+		// Pass any session messages to request
+		if (session.getAttribute("successMessage") != null) {
+			request.setAttribute("successMessage", session.getAttribute("successMessage"));
+			session.removeAttribute("successMessage");
+		}
+
+		if (session.getAttribute("errorMessage") != null) {
+			request.setAttribute("errorMessage", session.getAttribute("errorMessage"));
+			session.removeAttribute("errorMessage");
+		}
+
+		request.getRequestDispatcher("/rooms_manager.jsp").forward(request, response);
 	}
 }

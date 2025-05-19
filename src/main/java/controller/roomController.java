@@ -53,33 +53,46 @@ public class roomController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String action = request.getServletPath();
+		String operation = request.getParameter("operation");
 
 		try {
+			if (action.equals("/room") && operation != null) {
+				switch (operation) {
+					case "view":
+						viewRoomJson(request, response);
+						return;
+					case "delete":
+						deleteRoom(request, response);
+						return;
+					// ...other operations...
+				}
+			}
+
 			switch (action) {
-			case "/rooms":
-				listRooms(request, response);
-				break;
-			case "/room-info":
-				showRoomInfo(request, response);
-				break;
-			case "/add-room":
-				showAddRoomForm(request, response);
-				break;
-			case "/edit-room":
-				showEditRoomForm(request, response);
-				break;
-			case "/delete-room":
-				deleteRoom(request, response);
-				break;
-			case "/my-rooms":
-				showMyRooms(request, response);
-				break;
-			case "/search-rooms":
-				searchRooms(request, response);
-				break;
-			default:
-				listRooms(request, response);
-				break;
+				case "/rooms":
+					listRooms(request, response);
+					break;
+				case "/room-info":
+					showRoomInfo(request, response);
+					break;
+				case "/add-room":
+					showAddRoomForm(request, response);
+					break;
+				case "/edit-room":
+					showEditRoomForm(request, response);
+					break;
+				case "/delete-room":
+					deleteRoom(request, response);
+					break;
+				case "/my-rooms":
+					showMyRooms(request, response);
+					break;
+				case "/search-rooms":
+					searchRooms(request, response);
+					break;
+				default:
+					listRooms(request, response);
+					break;
 			}
 		} catch (Exception e) {
 			throw new ServletException(e);
@@ -94,21 +107,37 @@ public class roomController extends HttpServlet {
 			throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		String action = request.getServletPath();
+		String operation = request.getParameter("operation");
 
 		try {
+			if (action.equals("/room") && operation != null) {
+				switch (operation) {
+					case "add":
+						addRoomAdmin(request, response);
+						return;
+					case "update":
+						updateRoomAdmin(request, response);
+						return;
+					case "delete":
+						deleteRoomAdmin(request, response);
+						return;
+					// ...other operations...
+				}
+			}
+
 			switch (action) {
-			case "/add-room":
-				addRoom(request, response);
-				break;
-			case "/edit-room":
-				updateRoom(request, response);
-				break;
-			case "/search-rooms":
-				searchRooms(request, response);
-				break;
-			default:
-				listRooms(request, response);
-				break;
+				case "/add-room":
+					addRoom(request, response);
+					break;
+				case "/edit-room":
+					updateRoom(request, response);
+					break;
+				case "/search-rooms":
+					searchRooms(request, response);
+					break;
+				default:
+					listRooms(request, response);
+					break;
 			}
 		} catch (Exception e) {
 			throw new ServletException(e);
@@ -284,12 +313,11 @@ public class roomController extends HttpServlet {
 			// Calculate new expiry date if changed
 			String expiryDate = existingRoom.getExpiryDate();
 			if (expiryDays != null && !expiryDays.isEmpty()) {
-			    String expiryDateOnly = expiryDate.substring(0, 10); // Lấy phần yyyy-MM-dd
-			    LocalDate currentExpiryDate = LocalDate.parse(expiryDateOnly);
-			    LocalDate newExpiryDate = currentExpiryDate.plusDays(Integer.parseInt(expiryDays));
-			    expiryDate = newExpiryDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+				String expiryDateOnly = expiryDate.substring(0, 10); // Lấy phần yyyy-MM-dd
+				LocalDate currentExpiryDate = LocalDate.parse(expiryDateOnly);
+				LocalDate newExpiryDate = currentExpiryDate.plusDays(Integer.parseInt(expiryDays));
+				expiryDate = newExpiryDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
 			}
-
 
 			boolean success = roomBO.updateRoom(id, title, description, existingRoom.getRoomType(), price, area,
 					address, city, district, imagesPath, existingRoom.getCreatedAt(), expiryDate,
@@ -408,19 +436,19 @@ public class roomController extends HttpServlet {
 		if (sortBy != null && !sortBy.isEmpty()) {
 			// Sort the search results based on sortBy parameter
 			switch (sortBy) {
-			case "price-low":
-				searchResults.sort(Comparator.comparing(room::getPrice));
-				break;
-			case "price-high":
-				searchResults.sort(Comparator.comparing(room::getPrice).reversed());
-				break;
-			case "area-low":
-				searchResults.sort(Comparator.comparing(room::getArea));
-				break;
-			case "area-high":
-				searchResults.sort(Comparator.comparing(room::getArea).reversed());
-				break;
-			// Default case: already sorted by newest
+				case "price-low":
+					searchResults.sort(Comparator.comparing(room::getPrice));
+					break;
+				case "price-high":
+					searchResults.sort(Comparator.comparing(room::getPrice).reversed());
+					break;
+				case "area-low":
+					searchResults.sort(Comparator.comparing(room::getArea));
+					break;
+				case "area-high":
+					searchResults.sort(Comparator.comparing(room::getArea).reversed());
+					break;
+				// Default case: already sorted by newest
 			}
 		}
 
@@ -501,5 +529,157 @@ public class roomController extends HttpServlet {
 		} else {
 			response.sendRedirect("rooms");
 		}
+	}
+
+	// Add this method to handle AJAX requests for viewing room details
+	private void viewRoomJson(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String roomId = request.getParameter("id");
+		room roomData = roomBO.getRoomByID(roomId);
+
+		if (roomData != null) {
+			// Get the owner's name
+			userBO userBO = new userBO();
+			user owner = userBO.getUserByID(roomData.getUser_id());
+			String ownerName = (owner != null) ? owner.getName() : "Unknown";
+
+			// Set response type to JSON
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+
+			// Create JSON manually
+			String roomJson = "{" +
+					"\"id\":\"" + roomData.getId() + "\"," +
+					"\"title\":\"" + escapeJSON(roomData.getTitle()) + "\"," +
+					"\"description\":\"" + escapeJSON(roomData.getDescription()) + "\"," +
+					"\"roomType\":\"" + roomData.getRoomType() + "\"," +
+					"\"price\":" + roomData.getPrice() + "," +
+					"\"area\":" + roomData.getArea() + "," +
+					"\"address\":\"" + escapeJSON(roomData.getAddress()) + "\"," +
+					"\"city\":\"" + roomData.getCity() + "\"," +
+					"\"district\":\"" + escapeJSON(roomData.getDistrict()) + "\"," +
+					"\"images\":\"" + roomData.getImages() + "\"," +
+					"\"createdAt\":\"" + roomData.getCreatedAt() + "\"," +
+					"\"expiryDate\":\"" + roomData.getExpiryDate() + "\"," +
+					"\"status\":\"" + roomData.getStatus() + "\"," +
+					"\"user_id\":\"" + roomData.getUser_id() + "\"," +
+					"\"userName\":\"" + escapeJSON(ownerName) + "\"" +
+					"}";
+
+			// Write JSON to response
+			response.getWriter().write(roomJson);
+		} else {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			response.getWriter().write("{\"error\":\"Room not found\"}");
+		}
+	}
+
+	// Helper method for JSON string escaping
+	private String escapeJSON(String input) {
+		if (input == null)
+			return "";
+		return input.replace("\\", "\\\\")
+				.replace("\"", "\\\"")
+				.replace("\n", "\\n")
+				.replace("\r", "\\r")
+				.replace("\t", "\\t");
+	}
+
+	// Admin-specific room operations
+	private void addRoomAdmin(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		HttpSession session = request.getSession();
+
+		// Get form parameters
+		String title = request.getParameter("title");
+		String description = request.getParameter("description");
+		double price = Double.parseDouble(request.getParameter("price"));
+		double area = Double.parseDouble(request.getParameter("area"));
+		String address = request.getParameter("address");
+		String city = request.getParameter("city");
+		String district = request.getParameter("district");
+		String status = request.getParameter("status");
+		String userId = request.getParameter("user_id");
+
+		// Process image uploads (reuse existing method)
+		String imagesPath = processImageUploads(request);
+
+		// Set dates
+		String createdAt = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+		String expiryDate = LocalDate.now().plusDays(30).format(DateTimeFormatter.ISO_LOCAL_DATE); // Default 30 days
+
+		// Default room type
+		String roomType = "standard";
+
+		boolean success = roomBO.addRoom(title, description, roomType, price, area, address,
+				city, district, imagesPath, createdAt, expiryDate, status, userId);
+
+		if (success) {
+			session.setAttribute("successMessage", "Phòng trọ đã được thêm thành công");
+		} else {
+			session.setAttribute("errorMessage", "Không thể thêm phòng trọ. Vui lòng thử lại");
+		}
+
+		response.sendRedirect(request.getContextPath() + "/admin_rooms");
+	}
+
+	private void updateRoomAdmin(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		HttpSession session = request.getSession();
+
+		String id = request.getParameter("id");
+		String title = request.getParameter("title");
+		String description = request.getParameter("description");
+		double price = Double.parseDouble(request.getParameter("price"));
+		double area = Double.parseDouble(request.getParameter("area"));
+		String address = request.getParameter("address");
+		String city = request.getParameter("city");
+		String district = request.getParameter("district");
+		String status = request.getParameter("status");
+		String deletedImages = request.getParameter("deletedImages");
+
+		room existingRoom = roomBO.getRoomByID(id);
+
+		if (existingRoom != null) {
+			// Handle images (similar to your existing updateRoom method)
+			String imagesPath = existingRoom.getImages();
+			if (deletedImages != null && !deletedImages.isEmpty()) {
+				// Process deleted images logic here
+				// ...
+			}
+
+			// Process new images if any
+			// ...
+
+			boolean success = roomBO.updateRoom(id, title, description, existingRoom.getRoomType(),
+					price, area, address, city, district, imagesPath, existingRoom.getCreatedAt(),
+					existingRoom.getExpiryDate(), status, existingRoom.getUser_id());
+
+			if (success) {
+				session.setAttribute("successMessage", "Phòng trọ đã được cập nhật thành công");
+			} else {
+				session.setAttribute("errorMessage", "Không thể cập nhật phòng trọ. Vui lòng thử lại");
+			}
+		} else {
+			session.setAttribute("errorMessage", "Không tìm thấy phòng trọ");
+		}
+
+		response.sendRedirect(request.getContextPath() + "/admin_rooms");
+	}
+
+	private void deleteRoomAdmin(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		HttpSession session = request.getSession();
+		String id = request.getParameter("id");
+
+		boolean success = roomBO.deleteRoom(id);
+
+		if (success) {
+			session.setAttribute("successMessage", "Phòng trọ đã được xóa thành công");
+		} else {
+			session.setAttribute("errorMessage", "Không thể xóa phòng trọ. Vui lòng thử lại");
+		}
+
+		response.sendRedirect(request.getContextPath() + "/admin_rooms");
 	}
 }

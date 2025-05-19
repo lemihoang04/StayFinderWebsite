@@ -48,5 +48,6 @@
     <url-pattern>/admin_logout</url-pattern>
     <url-pattern>/admin_dashboard</url-pattern>
     <url-pattern>/admin_users</url-pattern>
+    <url-pattern>/admin_rooms</url-pattern>
   </servlet-mapping>
 </web-app>
