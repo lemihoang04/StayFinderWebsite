@@ -112,30 +112,6 @@
                                             </div>
                                         </div>
 
-                                        <div class="sf-filter-section">
-                                            <h4>Tiện ích</h4>
-                                            <div class="sf-filter-option sf-amenities">
-                                                <div class="sf-amenity-checkbox">
-                                                    <input type="checkbox" id="wifi" name="amenities" value="wifi">
-                                                    <label for="wifi">Wi-Fi</label>
-                                                </div>
-                                                <div class="sf-amenity-checkbox">
-                                                    <input type="checkbox" id="ac" name="amenities" value="ac">
-                                                    <label for="ac">Điều hòa</label>
-                                                </div>
-                                                <div class="sf-amenity-checkbox">
-                                                    <input type="checkbox" id="bathroom" name="amenities"
-                                                        value="bathroom">
-                                                    <label for="bathroom">WC riêng</label>
-                                                </div>
-                                                <div class="sf-amenity-checkbox">
-                                                    <input type="checkbox" id="kitchen" name="amenities"
-                                                        value="kitchen">
-                                                    <label for="kitchen">Nhà bếp</label>
-                                                </div>
-                                            </div>
-                                        </div>
-
                                         <div class="sf-filter-actions">
                                             <button type="submit" class="sf-btn-apply-filter">Áp dụng</button>
                                             <button type="button" class="sf-btn-reset-filter">Xóa bộ lọc</button>
@@ -263,7 +239,7 @@
                 <c:forEach var="c" items="${cityList}">
                     cityDistrictMap['${c.city_name}'] = [<c:forEach var="d" items="${c.district}" varStatus="status">'${d}'<c:if test="${!status.last}">, </c:if></c:forEach>];
                 </c:forEach>
-                
+
                 // Cập nhật event listener cho select city
                 document.getElementById('citySelect').addEventListener('change', function () {
                     var selectedCity = this.value;
@@ -272,7 +248,7 @@
                     districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
                     if (selectedCity && cityDistrictMap[selectedCity]) {
                         districtSelect.disabled = false;
-                        cityDistrictMap[selectedCity].forEach(function(district) {
+                        cityDistrictMap[selectedCity].forEach(function (district) {
                             var option = document.createElement('option');
                             option.value = district;
                             option.textContent = district;

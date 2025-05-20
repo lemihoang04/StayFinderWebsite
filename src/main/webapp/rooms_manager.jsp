@@ -433,7 +433,7 @@
             <script>
                 // Thêm biến contextPath từ server
                 var contextPath = '<%=request.getContextPath()%>';
-                
+
                 // Modal functions
                 document.getElementById('rm-add-room-btn').addEventListener('click', function () {
                     document.getElementById('rm-modal-overlay').style.display = 'block';
@@ -512,20 +512,63 @@
                             loadEditDistrict(room.city, room.district);
                             document.getElementById('edit-description').value = room.description;
                             document.getElementById('edit-status').value = room.status;
-                            // ...existing code handling images...
+
+                            // Xử lý hiển thị ảnh hiện tại
+                            const imagesContainer = document.getElementById('edit-existing-images');
+                            imagesContainer.innerHTML = '';
+                            document.getElementById('edit-deleted-images').value = '';
+
+                            if (room.images && room.images.length > 0) {
+                                const imageUrls = room.images.split(',');
+                                imageUrls.forEach(url => {
+                                    const imageWrapper = document.createElement('div');
+                                    imageWrapper.className = 'rm-preview-item';
+                                    imageWrapper.dataset.url = url;
+
+                                    const img = document.createElement('img');
+                                    img.src = url;
+                                    img.alt = room.title;
+                                    img.className = 'rm-preview-image';
+
+                                    const removeBtn = document.createElement('button');
+                                    removeBtn.className = 'rm-preview-remove';
+                                    removeBtn.innerHTML = '×';
+                                    removeBtn.type = 'button';
+                                    removeBtn.onclick = function (e) {
+                                        e.preventDefault();
+                                        const deletedInput = document.getElementById('edit-deleted-images');
+                                        if (deletedInput.value) {
+                                            deletedInput.value += ',' + url;
+                                        } else {
+                                            deletedInput.value = url;
+                                        }
+                                        imageWrapper.remove();
+                                    };
+
+                                    imageWrapper.appendChild(img);
+                                    imageWrapper.appendChild(removeBtn);
+                                    imagesContainer.appendChild(imageWrapper);
+                                });
+                            } else {
+                                imagesContainer.innerHTML = '<p>Không có hình ảnh nào</p>';
+                            }
+
                             document.getElementById('rm-modal-overlay').style.display = 'block';
                             document.getElementById('rm-edit-room-modal').style.display = 'block';
                         })
-                        .catch(error => console.error('Error fetching room data:', error));
+                        .catch(error => {
+                            console.error('Error fetching room data:', error);
+                            alert('Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.');
+                        });
                 }
-                
+
                 function confirmDelete(roomId, roomTitle) {
                     document.getElementById('delete-id').value = roomId;
                     document.getElementById('delete-title').textContent = roomTitle;
                     document.getElementById('rm-modal-overlay').style.display = 'block';
                     document.getElementById('rm-delete-room-modal').style.display = 'block';
                 }
-                
+
                 // Close all modals
                 function closeModals() {
                     document.getElementById('rm-modal-overlay').style.display = 'none';
@@ -665,7 +708,47 @@
                             loadEditDistrict(room.city, room.district);
                             document.getElementById('edit-description').value = room.description;
                             document.getElementById('edit-status').value = room.status;
-                            // ...existing code for handling images...
+
+                            // Xử lý hiển thị ảnh hiện tại
+                            const imagesContainer = document.getElementById('edit-existing-images');
+                            imagesContainer.innerHTML = '';
+                            document.getElementById('edit-deleted-images').value = '';
+
+                            if (room.images && room.images.length > 0) {
+                                const imageUrls = room.images.split(',');
+                                imageUrls.forEach(url => {
+                                    const imageWrapper = document.createElement('div');
+                                    imageWrapper.className = 'rm-preview-item';
+                                    imageWrapper.dataset.url = url;
+
+                                    const img = document.createElement('img');
+                                    img.src = url;
+                                    img.alt = room.title;
+                                    img.className = 'rm-preview-image';
+
+                                    const removeBtn = document.createElement('button');
+                                    removeBtn.className = 'rm-preview-remove';
+                                    removeBtn.innerHTML = '×';
+                                    removeBtn.type = 'button';
+                                    removeBtn.onclick = function (e) {
+                                        e.preventDefault();
+                                        const deletedInput = document.getElementById('edit-deleted-images');
+                                        if (deletedInput.value) {
+                                            deletedInput.value += ',' + url;
+                                        } else {
+                                            deletedInput.value = url;
+                                        }
+                                        imageWrapper.remove();
+                                    };
+
+                                    imageWrapper.appendChild(img);
+                                    imageWrapper.appendChild(removeBtn);
+                                    imagesContainer.appendChild(imageWrapper);
+                                });
+                            } else {
+                                imagesContainer.innerHTML = '<p>Không có hình ảnh nào</p>';
+                            }
+
                             document.getElementById('rm-modal-overlay').style.display = 'block';
                             document.getElementById('rm-edit-room-modal').style.display = 'block';
                         })

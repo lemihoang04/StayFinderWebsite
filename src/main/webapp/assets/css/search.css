@@ -77,7 +77,7 @@
 
 /* Filters Sidebar */
 .sf-filters-sidebar {
-    /*     position: sticky; */
+    position: sticky;
     top: 90px;
     height: fit-content;
 }
