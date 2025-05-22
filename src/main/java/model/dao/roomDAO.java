@@ -69,25 +69,21 @@ public class roomDAO {
 		StringBuilder queryBuilder = new StringBuilder("SELECT * FROM rooms WHERE 1=1");
 		ArrayList<Object> parameters = new ArrayList<>();
 
-		// Add search text filter if provided
 		if (searchtxt != null && !searchtxt.trim().isEmpty()) {
 			queryBuilder.append(" AND title LIKE ?");
 			parameters.add("%" + searchtxt + "%");
 		}
 
-		// Add city filter if provided
 		if (city != null && !city.isEmpty()) {
 			queryBuilder.append(" AND city = ?");
 			parameters.add(city);
 		}
 
-		// Add district filter if provided
 		if (district != null && !district.isEmpty()) {
 			queryBuilder.append(" AND district = ?");
 			parameters.add(district);
 		}
 
-		// Add price range filter if provided
 		if (minPrice != null) {
 			queryBuilder.append(" AND price >= ?");
 			parameters.add(minPrice);
@@ -98,7 +94,6 @@ public class roomDAO {
 			parameters.add(maxPrice);
 		}
 
-		// Add area range filter if provided
 		if (minArea != null) {
 			queryBuilder.append(" AND area >= ?");
 			parameters.add(minArea);
@@ -113,7 +108,6 @@ public class roomDAO {
 			conn = new DBconnect().getConnection();
 			ps = conn.prepareStatement(queryBuilder.toString());
 
-			// Set parameters
 			for (int i = 0; i < parameters.size(); i++) {
 				Object param = parameters.get(i);
 				if (param instanceof String) {
@@ -136,6 +130,29 @@ public class roomDAO {
 		} finally {
 			closeResources();
 		}
+		return list;
+	}
+
+	public ArrayList<room> getFeatureRooms() {
+		ArrayList<room> list = new ArrayList<>();
+		String query = "SELECT * FROM rooms limit 4";
+		try {
+			conn = new DBconnect().getConnection();
+			ps = conn.prepareStatement(query);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				list.add(new room(rs.getString("id"), rs.getString("title"), rs.getString("description"),
+						rs.getString("room_type"),
+						rs.getDouble("price"), rs.getDouble("area"), rs.getString("address"), rs.getString("city"),
+						rs.getString("district"), rs.getString("images"), rs.getString("created_at"),
+						rs.getString("expiry_date"), rs.getString("status"), rs.getString("user_id")));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			closeResources();
+		}
+
 		return list;
 	}
 

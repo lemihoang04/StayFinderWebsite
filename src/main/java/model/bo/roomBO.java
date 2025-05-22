@@ -22,18 +22,15 @@ public class roomBO {
 			String maxPriceStr, String minAreaStr, String maxAreaStr, String searchtxt) {
 		roomDAO roomDAO = new roomDAO();
 
-		// Convert string parameters to appropriate types
 		Double minPrice = null;
 		Double maxPrice = null;
 		Double minArea = null;
 		Double maxArea = null;
 
-		// Parse price values if provided
 		if (minPriceStr != null && !minPriceStr.trim().isEmpty()) {
 			try {
 				minPrice = Double.parseDouble(minPriceStr);
 			} catch (NumberFormatException e) {
-				// Invalid number, keep as null
 			}
 		}
 
@@ -41,16 +38,13 @@ public class roomBO {
 			try {
 				maxPrice = Double.parseDouble(maxPriceStr);
 			} catch (NumberFormatException e) {
-				// Invalid number, keep as null
 			}
 		}
 
-		// Parse area values if provided
 		if (minAreaStr != null && !minAreaStr.trim().isEmpty()) {
 			try {
 				minArea = Double.parseDouble(minAreaStr);
 			} catch (NumberFormatException e) {
-				// Invalid number, keep as null
 			}
 		}
 
@@ -58,11 +52,14 @@ public class roomBO {
 			try {
 				maxArea = Double.parseDouble(maxAreaStr);
 			} catch (NumberFormatException e) {
-				// Invalid number, keep as null
 			}
 		}
-		// Call the DAO method with converted parameters
 		return roomDAO.getAdvancedSearchResults(city, district, minPrice, maxPrice, minArea, maxArea, searchtxt);
+	}
+
+	public ArrayList<room> getFeatureRooms() {
+		roomDAO roomDAO = new roomDAO();
+		return roomDAO.getFeatureRooms();
 	}
 
 	public room getRoomByID(String id) {

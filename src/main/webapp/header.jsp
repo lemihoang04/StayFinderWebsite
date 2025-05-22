@@ -40,9 +40,9 @@
 
                 <nav class="header-main-nav">
                     <ul>
-                        <li><a href="index.jsp">Trang chủ</a></li>
+                        <li><a href="home">Trang chủ</a></li>
                         <li><a href="rooms">Tìm phòng trọ</a></li>
-                        <li><a href="#">Liên hệ</a></li>
+                        <!-- <li><a href="#">Liên hệ</a></li> -->
                     </ul>
                 </nav>
             </div>

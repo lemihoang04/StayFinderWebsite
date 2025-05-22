@@ -11,8 +11,6 @@ import jakarta.servlet.http.Part;
 
 import java.io.File;
 import java.io.IOException;
-//import java.nio.file.Files;
-//import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -27,31 +25,18 @@ import model.bo.userBO;
 import model.bean.city;
 import model.bo.cityBO;
 
-/**
- * Servlet implementation class roomController
- */
 @WebServlet(name = "roomController", urlPatterns = { "/rooms", "/room-info", "/add-room", "/edit-room", "/delete-room",
-		"/my-rooms", "/search-rooms" })
-@MultipartConfig(fileSizeThreshold = 1024 * 1024, // 1 MB
-		maxFileSize = 1024 * 1024 * 10, // 10 MB
-		maxRequestSize = 1024 * 1024 * 50 // 50 MB
-)
+		"/my-rooms", "/search-rooms", "/home" })
+@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 10, maxRequestSize = 1024 * 1024 * 50)
 public class roomController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private roomBO roomBO;
 
-	/**
-	 * @see HttpServlet#HttpServlet()
-	 */
 	public roomController() {
 		super();
 		roomBO = new roomBO();
 	}
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String action = request.getServletPath();
@@ -66,11 +51,13 @@ public class roomController extends HttpServlet {
 					case "delete":
 						deleteRoom(request, response);
 						return;
-					// ...other operations...
 				}
 			}
 
 			switch (action) {
+				case "/home":
+					showHome(request, response);
+					break;
 				case "/rooms":
 					listRooms(request, response);
 					break;
@@ -93,7 +80,7 @@ public class roomController extends HttpServlet {
 					searchRooms(request, response);
 					break;
 				default:
-					listRooms(request, response);
+					showHome(request, response);
 					break;
 			}
 		} catch (Exception e) {
@@ -101,10 +88,6 @@ public class roomController extends HttpServlet {
 		}
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
@@ -123,7 +106,6 @@ public class roomController extends HttpServlet {
 					case "delete":
 						deleteRoomAdmin(request, response);
 						return;
-					// ...other operations...
 				}
 			}
 
@@ -160,6 +142,14 @@ public class roomController extends HttpServlet {
 
 		// Truyền cityList sang JSP để render select city/district động
 		request.getRequestDispatcher("search.jsp").forward(request, response);
+	}
+
+	private void showHome(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// Get featured rooms for home page
+		ArrayList<room> roomList = roomBO.getFeatureRooms();
+		request.setAttribute("roomList", roomList);
+		request.getRequestDispatcher("index.jsp").forward(request, response);
 	}
 
 	private void showAddRoomForm(HttpServletRequest request, HttpServletResponse response)
@@ -457,7 +447,6 @@ public class roomController extends HttpServlet {
 				case "area-high":
 					searchResults.sort(Comparator.comparing(room::getArea).reversed());
 					break;
-				// Default case: already sorted by newest
 			}
 		}
 
@@ -545,7 +534,6 @@ public class roomController extends HttpServlet {
 		}
 	}
 
-	// Add this method to handle AJAX requests for viewing room details
 	private void viewRoomJson(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String roomId = request.getParameter("id");
@@ -588,7 +576,6 @@ public class roomController extends HttpServlet {
 		}
 	}
 
-	// Helper method for JSON string escaping
 	private String escapeJSON(String input) {
 		if (input == null)
 			return "";
@@ -599,7 +586,6 @@ public class roomController extends HttpServlet {
 				.replace("\t", "\\t");
 	}
 
-	// Admin-specific room operations
 	private void addRoomAdmin(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		HttpSession session = request.getSession();
